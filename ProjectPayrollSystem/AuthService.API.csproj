@@ -20,9 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\AuthService.Core\AuthService.Core.csproj" />
-    <ProjectReference Include="..\..\AuthService.Infrastructure\AuthService.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Payroll.Common\Payroll.Common.csproj" />
+    <ProjectReference Include="..\AuthService.Core\AuthService.Core.csproj" />
+    <ProjectReference Include="..\AuthService.Infrastructure\AuthService.Infrastructure.csproj" />
+    <ProjectReference Include="..\Payroll.Common\Payroll.Common.csproj" />
   </ItemGroup>
 
 </Project>
