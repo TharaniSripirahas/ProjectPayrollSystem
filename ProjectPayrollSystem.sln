@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Infrastructure"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payroll.Common", "Payroll.Common\Payroll.Common.csproj", "{50C65C26-8C7F-4CB8-B4EB-BE6D1341D677}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EmployeeService", "EmployeeService", "{0F19615A-B2A3-4264-BCA5-49CC686DD026}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmployeeService.API", "EmployeeService.API\EmployeeService.API.csproj", "{B9E2197F-287E-4150-A48F-BA29574E3248}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +39,10 @@ Global
 		{50C65C26-8C7F-4CB8-B4EB-BE6D1341D677}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50C65C26-8C7F-4CB8-B4EB-BE6D1341D677}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50C65C26-8C7F-4CB8-B4EB-BE6D1341D677}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9E2197F-287E-4150-A48F-BA29574E3248}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9E2197F-287E-4150-A48F-BA29574E3248}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9E2197F-287E-4150-A48F-BA29574E3248}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9E2197F-287E-4150-A48F-BA29574E3248}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -43,5 +51,6 @@ Global
 		{2C1E61C3-2692-4EE4-A80C-6923E80929A5} = {740C74C2-C6A8-4848-9796-8C6AFC782929}
 		{BB13CFA9-4676-4BA9-A3B4-A5C7FB47FDE1} = {740C74C2-C6A8-4848-9796-8C6AFC782929}
 		{6F703C65-98E2-47D9-ABEC-6408B4CB9CEA} = {740C74C2-C6A8-4848-9796-8C6AFC782929}
+		{B9E2197F-287E-4150-A48F-BA29574E3248} = {0F19615A-B2A3-4264-BCA5-49CC686DD026}
 	EndGlobalSection
 EndGlobal

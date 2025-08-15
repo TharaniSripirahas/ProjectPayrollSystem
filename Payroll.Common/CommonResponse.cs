@@ -31,7 +31,6 @@ namespace Payroll.Common
         public bool IsSuccess { get; set; }
         public string Message { get; set; } = string.Empty;
         public object? Data { get; set; }
-
         public static CommonResult Success(object? data, string message = "Success") => new()
         {
             IsSuccess = true,
