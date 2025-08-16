@@ -1,15 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EmployeeService.Core\EmployeeService.Core.csproj" />
-    <ProjectReference Include="..\EmployeeService.Infrastructure\EmployeeService.Infrastructure.csproj" />
-    <ProjectReference Include="..\Payroll.Common\Payroll.Common.csproj" />
   </ItemGroup>
 
 </Project>

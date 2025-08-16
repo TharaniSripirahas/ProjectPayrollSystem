@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Payroll.Common.DatabaseContext;
@@ -11,9 +12,11 @@ using Payroll.Common.DatabaseContext;
 namespace AuthService.API.Migrations
 {
     [DbContext(typeof(PayrollDbContext))]
-    partial class PayrollDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250816092447_AddEmployeeTypeTable")]
+    partial class AddEmployeeTypeTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
