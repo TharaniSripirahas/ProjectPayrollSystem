@@ -8,46 +8,48 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace EmployeeService.Infrastructure.Services
 {
-    public class DepartmentService : IDepartmentService
+    public class DesignationRepository : IDesignationService
     {
         private readonly PayrollDbContext _context;
 
-        public DepartmentService(PayrollDbContext context)
+        public DesignationRepository(PayrollDbContext context)
         {
             _context = context;
         }
 
-        public async Task<List<DepartmentDto>> GetAllAsync()
+        public async Task<List<DesignationDto>> GetAllAsync()
         {
-            return await _context.Departments
-                .Select(d => new DepartmentDto
+            return await _context.Designations
+                .Select(d => new DesignationDto
                 {
-                    DepartmentId = d.DepartmentId,
-                    DepartmentName = d.DepartmentName,
+                    DesignationId = d.DesignationId,
+                    DesignationName = d.DesignationName,
                     Description = d.Description,
-                    ManagerId = d.ManagerId,
+                    DepartmentId = d.DepartmentId,
                     CreatedBy = d.CreatedBy,
                     CreatedOn = d.CreatedOn,
                     LastModifiedBy = d.LastModifiedBy,
                     LastModifiedOn = d.LastModifiedOn,
                     RecordStatus = d.RecordStatus
-                }).ToListAsync();
+                })
+                .ToListAsync();
         }
 
-        public async Task<DepartmentDto?> GetByIdAsync(long id)
+        public async Task<DesignationDto?> GetByIdAsync(long id)
         {
-            var entity = await _context.Departments.FindAsync(id);
+            var entity = await _context.Designations.FindAsync(id);
             if (entity == null) return null;
 
-            return new DepartmentDto
+            return new DesignationDto
             {
-                DepartmentId = entity.DepartmentId,
-                DepartmentName = entity.DepartmentName,
+                DesignationId = entity.DesignationId,
+                DesignationName = entity.DesignationName,
                 Description = entity.Description,
-                ManagerId = entity.ManagerId,
+                DepartmentId = entity.DepartmentId,
                 CreatedBy = entity.CreatedBy,
                 CreatedOn = entity.CreatedOn,
                 LastModifiedBy = entity.LastModifiedBy,
@@ -56,61 +58,67 @@ namespace EmployeeService.Infrastructure.Services
             };
         }
 
-        public async Task<DepartmentDto> CreateAsync(DepartmentDto dto)
+        public async Task<DesignationDto> CreateAsync(DesignationDto dto)
         {
-            var entity = new Department
+            var entity = new Designation
             {
-                DepartmentName = dto.DepartmentName,
+                DesignationName = dto.DesignationName,
                 Description = dto.Description,
-                ManagerId = dto.ManagerId,
                 CreatedBy = dto.CreatedBy,
                 CreatedOn = DateTime.UtcNow,
+                DepartmentId = dto.DepartmentId,
                 RecordStatus = dto.RecordStatus,
 
                 LastModifiedBy = dto.CreatedBy,
-                LastModifiedOn = DateTime.UtcNow  
+                LastModifiedOn = DateTime.UtcNow
             };
 
-            _context.Departments.Add(entity);
+            _context.Designations.Add(entity);
             await _context.SaveChangesAsync();
 
-            return new DepartmentDto
+            return new DesignationDto
             {
-                DepartmentName = entity.DepartmentName,
+                DesignationId = entity.DesignationId,
+                DesignationName = entity.DesignationName,
                 Description = entity.Description,
-                ManagerId = entity.ManagerId,
-                DepartmentId = entity.DepartmentId,
+                CreatedBy = entity.CreatedBy,
                 CreatedOn = entity.CreatedOn,
-                LastModifiedOn = entity.LastModifiedOn,
                 LastModifiedBy = entity.LastModifiedBy,
+                LastModifiedOn = entity.LastModifiedOn,
                 RecordStatus = entity.RecordStatus,
-
+                DepartmentId = entity.DepartmentId
             };
         }
 
-        public async Task<bool> UpdateAsync(long id, DepartmentDto dto)
+
+        public async Task<bool> UpdateAsync(long id, DesignationDto dto)
         {
-            var entity = await _context.Departments.FindAsync(id);
+            var entity = await _context.Designations.FindAsync(id);
             if (entity == null) return false;
 
-            entity.DepartmentName = dto.DepartmentName;
+            entity.DesignationName = dto.DesignationName;
             entity.Description = dto.Description;
-            entity.ManagerId = dto.ManagerId;
-            entity.LastModifiedBy = dto.LastModifiedBy;
-            entity.LastModifiedOn = DateTime.UtcNow;
+            entity.DepartmentId = dto.DepartmentId;
             entity.RecordStatus = dto.RecordStatus;
 
-            _context.Departments.Update(entity);
-            return await _context.SaveChangesAsync() > 0;
+            entity.LastModifiedBy = dto.LastModifiedBy ?? dto.CreatedBy;
+            entity.LastModifiedOn = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return true;
         }
+
+
 
         public async Task<bool> DeleteAsync(long id)
         {
-            var entity = await _context.Departments.FindAsync(id);
+            var entity = await _context.Designations.FindAsync(id);
             if (entity == null) return false;
 
-            _context.Departments.Remove(entity);
+            _context.Designations.Remove(entity);
             return await _context.SaveChangesAsync() > 0;
         }
+
     }
 }

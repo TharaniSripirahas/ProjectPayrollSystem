@@ -101,12 +101,15 @@ namespace Payroll.Common.Models
         [Required, MaxLength(50)]
         public string DesignationName { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public long? DepartmentId { get; set; }
         public long CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedOn { get; set; }
         public long? LastModifiedBy { get; set; }
         public DateTime? LastModifiedOn { get; set; }
-        public int RecordStatus { get; set; } = 0;
+        public int RecordStatus { get; set; }
+        public long DepartmentId { get; set; }
+
+        // FK
+        public Department Department { get; set; } = null!;
     }
 
     public class Skill
