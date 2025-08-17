@@ -37,6 +37,8 @@ namespace EmployeeService.Infrastructure.Services
                 }).ToListAsync();
         }
 
+
+
         public async Task<DepartmentDto?> GetByIdAsync(long id)
         {
             var entity = await _context.Departments.FindAsync(id);
@@ -65,27 +67,15 @@ namespace EmployeeService.Infrastructure.Services
                 ManagerId = dto.ManagerId,
                 CreatedBy = dto.CreatedBy,
                 CreatedOn = DateTime.UtcNow,
-                RecordStatus = dto.RecordStatus,
-
-                LastModifiedBy = dto.CreatedBy,
-                LastModifiedOn = DateTime.UtcNow  
+                RecordStatus = dto.RecordStatus
             };
 
             _context.Departments.Add(entity);
             await _context.SaveChangesAsync();
 
-            return new DepartmentDto
-            {
-                DepartmentName = entity.DepartmentName,
-                Description = entity.Description,
-                ManagerId = entity.ManagerId,
-                DepartmentId = entity.DepartmentId,
-                CreatedOn = entity.CreatedOn,
-                LastModifiedOn = entity.LastModifiedOn,
-                LastModifiedBy = entity.LastModifiedBy,
-                RecordStatus = entity.RecordStatus,
-
-            };
+            dto.DepartmentId = entity.DepartmentId;
+            dto.CreatedOn = entity.CreatedOn;
+            return dto;
         }
 
         public async Task<bool> UpdateAsync(long id, DepartmentDto dto)

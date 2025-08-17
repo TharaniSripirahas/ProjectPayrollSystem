@@ -62,8 +62,8 @@ namespace EmployeeService.Infrastructure.Services
                 Description = dto.Description,
                 CreatedBy = dto.CreatedBy,
                 CreatedOn = DateTime.UtcNow,
-                LastModifiedBy = dto.CreatedBy, 
-                LastModifiedOn = DateTime.UtcNow, 
+                LastModifiedBy = dto.CreatedBy, // set initially
+                LastModifiedOn = DateTime.UtcNow, // set initially
                 RecordStatus = dto.RecordStatus
             };
 
@@ -76,6 +76,7 @@ namespace EmployeeService.Infrastructure.Services
             dto.LastModifiedOn = entity.LastModifiedOn;
             return dto;
         }
+
 
         public async Task<bool> UpdateAsync(long id, EmployeeTypeDto dto)
         {

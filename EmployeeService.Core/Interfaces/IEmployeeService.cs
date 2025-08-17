@@ -21,8 +21,8 @@ namespace EmployeeService.Core.Interfaces
     {
         Task<List<DesignationDto>> GetAllAsync();
         Task<DesignationDto?> GetByIdAsync(long id);
-        Task<DesignationDto> CreateAsync(DesignationDto dto);
-        Task<bool> UpdateAsync(long id, DesignationDto dto);
+        Task<DesignationDto> CreateAsync(CreateDesignationRequest req);
+        Task<bool> UpdateAsync(long id, CreateDesignationRequest req);
         Task<bool> DeleteAsync(long id);
     }
 
@@ -61,6 +61,4 @@ namespace EmployeeService.Core.Interfaces
         Task<bool> UpdateAsync(long id, DepartmentDto dto);
         Task<bool> DeleteAsync(long id);
     }
-
-
 }

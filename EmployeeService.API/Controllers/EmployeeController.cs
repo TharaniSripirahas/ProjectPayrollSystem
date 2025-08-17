@@ -33,15 +33,15 @@ namespace EmployeeService.API.Controllers
                 response.ResponseCode = 1;
                 response.Message = "Success";
                 response.ResponseData = employees;
-                return Ok(response);
             }
             catch (Exception ex)
             {
                 response.ResponseCode = 0;
                 response.Message = "Failed to fetch employees.";
                 response.ErrorDesc = ex.Message;
-                return StatusCode(500, response);
             }
+
+            return Ok(response);
         }
 
         // Get Employee by ID
@@ -69,15 +69,15 @@ namespace EmployeeService.API.Controllers
                 response.ResponseCode = 1;
                 response.Message = "Success";
                 response.ResponseData.Add(employee);
-                return Ok(response);
             }
             catch (Exception ex)
             {
                 response.ResponseCode = 0;
                 response.Message = "Error retrieving employee.";
                 response.ErrorDesc = ex.Message;
-                return StatusCode(500, response);
             }
+
+            return Ok(response);
         }
 
         // Create Employee
@@ -105,25 +105,26 @@ namespace EmployeeService.API.Controllers
             try
             {
                 var success = await _service.CreateAsync(dto);
-                if (!success)
+                if (success)
+                {
+                    response.ResponseCode = 1;
+                    response.Message = "Employee created successfully.";
+                    response.ResponseData.Add(dto);
+                }
+                else
                 {
                     response.ResponseCode = 0;
                     response.Message = "Failed to create employee.";
-                    return StatusCode(500, response);
                 }
-
-                response.ResponseCode = 1;
-                response.Message = "Employee created successfully.";
-                response.ResponseData.Add(dto);
-                return Ok(response);
             }
             catch (Exception ex)
             {
                 response.ResponseCode = 0;
                 response.Message = "Error occurred while creating employee.";
                 response.ErrorDesc = ex.Message;
-                return StatusCode(500, response);
             }
+
+            return Ok(response);
         }
 
         // Update Employee
@@ -138,40 +139,36 @@ namespace EmployeeService.API.Controllers
                 ResponseData = new List<EmployeeDto>()
             };
 
-            ModelState.Remove(nameof(EmployeeDto.Password));
-
             if (!ModelState.IsValid)
             {
                 response.ResponseCode = 0;
                 response.Message = "Validation failed.";
-                response.ErrorDesc = string.Join("; ", ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage));
                 return BadRequest(response);
             }
 
             try
             {
                 var success = await _service.UpdateAsync(id, dto);
-                if (!success)
+                if (success)
+                {
+                    response.ResponseCode = 1;
+                    response.Message = "Employee updated successfully.";
+                    response.ResponseData.Add(dto);
+                }
+                else
                 {
                     response.ResponseCode = 0;
                     response.Message = "Employee not found.";
-                    return NotFound(response);
                 }
-
-                response.ResponseCode = 1;
-                response.Message = "Employee updated successfully.";
-                response.ResponseData.Add(dto);
-                return Ok(response);
             }
             catch (Exception ex)
             {
                 response.ResponseCode = 0;
                 response.Message = "Error updating employee.";
                 response.ErrorDesc = ex.Message;
-                return StatusCode(500, response);
             }
+
+            return Ok(response);
         }
 
         // Delete Employee
@@ -189,24 +186,25 @@ namespace EmployeeService.API.Controllers
             try
             {
                 var success = await _service.DeleteAsync(id);
-                if (!success)
+                if (success)
+                {
+                    response.ResponseCode = 1;
+                    response.Message = "Employee deleted successfully.";
+                }
+                else
                 {
                     response.ResponseCode = 0;
                     response.Message = "Employee not found.";
-                    return NotFound(response);
                 }
-
-                response.ResponseCode = 1;
-                response.Message = "Employee deleted successfully.";
-                return Ok(response);
             }
             catch (Exception ex)
             {
                 response.ResponseCode = 0;
                 response.Message = "Error deleting employee.";
                 response.ErrorDesc = ex.Message;
-                return StatusCode(500, response);
             }
+
+            return Ok(response);
         }
     }
 }
