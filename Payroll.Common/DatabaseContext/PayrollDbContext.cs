@@ -1,46 +1,74 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Payroll.Common.DatabaseContext;
 using Payroll.Common.Models;
-using Payroll.Common.NonEntities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
-using Employees = Payroll.Common.Models.Employees;
 
 namespace Payroll.Common.DatabaseContext
 {
-    public class PayrollDbContext : DbContext
+    public class DbContextPayrollProject : DbContext
     {
-        public PayrollDbContext(DbContextOptions<PayrollDbContext> options) : base(options) { }
-        
+        public DbContextPayrollProject(DbContextOptions<DbContextPayrollProject> options)
+            : base(options) { }
+
         public DbSet<User> Users { get; set; } = null!;
 
         public DbSet<UserRole> UserRoles { get; set; } = null!;
-
         public DbSet<Employees> Employees { get; set; } = null!;
-
-        public DbSet<EmployeeType> EmployeeTypes { get; set; }
-        public DbSet<Department> Departments { get; set; }
-
-        public DbSet<Designation> Designations { get; set; }
-        public DbSet<Skill> Skills { get; set; }
-        public DbSet<EmployeeSkill> EmployeeSkills { get; set; }
-
+        public DbSet<EmployeeType> EmployeeTypes { get; set; } = null!;
+        public DbSet<Department> Departments { get; set; } = null!;
+        public DbSet<Designation> Designations { get; set; } = null!;
+        public DbSet<Skill> Skills { get; set; } = null!;
+        public DbSet<EmployeeSkill> EmployeeSkills { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Employees>()
-                        .Ignore(e => e.UserRoles);
+            .Ignore(e => e.UserRoles);
 
             modelBuilder.Entity<EmployeeType>().ToTable("EmployeeType");
             modelBuilder.Entity<EmployeeType>().HasKey(e => e.EmployeeTypeId);
+
+            // PostgreSQL-specific types
+            modelBuilder.Entity<Employees>()
+                .Property(e => e.BankAccountNumber)
+                .HasColumnType("bytea");
+
+            modelBuilder.Entity<Employees>()
+                .Property(e => e.DateOfBirth)
+                .HasColumnType("date");
+
+            modelBuilder.Entity<Employees>()
+                .Property(e => e.JoinDate)
+                .HasColumnType("date");
+
+            modelBuilder.Entity<Employees>()
+                .Property(e => e.ExitDate)
+                .HasColumnType("date");
+
+            // Relationships
+            modelBuilder.Entity<Employees>()
+                .HasOne(e => e.Department)
+                .WithMany(d => d.Employees)
+                .HasForeignKey(e => e.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Employees>()
+                .HasOne(e => e.Designation)
+                .WithMany()
+                .HasForeignKey(e => e.DesignationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Employees>()
+                .HasOne(e => e.EmployeeType)
+                .WithMany()
+                .HasForeignKey(e => e.EmploymentType)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Designation>()
+                .HasOne(d => d.Department)
+                .WithMany(dep => dep.Designations)
+                .HasForeignKey(d => d.DepartmentId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
-

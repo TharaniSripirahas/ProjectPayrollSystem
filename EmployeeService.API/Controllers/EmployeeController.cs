@@ -1,6 +1,7 @@
 ﻿using EmployeeService.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Payroll.Common.DTOs;
+using Payroll.Common.NonEntities;
 
 namespace EmployeeService.API.Controllers
 {
@@ -104,17 +105,18 @@ namespace EmployeeService.API.Controllers
 
             try
             {
-                var success = await _service.CreateAsync(dto);
-                if (!success)
+                var result = await _service.CreateEmployeeAsync(dto); // returns ApiResult<EmployeeDto>
+                if (result.ResponseCode != 1)
                 {
                     response.ResponseCode = 0;
-                    response.Message = "Failed to create employee.";
+                    response.Message = result.Message ?? "Failed to create employee.";
+                    response.ErrorDesc = result.ErrorDesc;
                     return StatusCode(500, response);
                 }
 
                 response.ResponseCode = 1;
-                response.Message = "Employee created successfully.";
-                response.ResponseData.Add(dto);
+                response.Message = result.Message;
+                response.ResponseData = result.ResponseData;
                 return Ok(response);
             }
             catch (Exception ex)
@@ -188,7 +190,7 @@ namespace EmployeeService.API.Controllers
 
             try
             {
-                var success = await _service.DeleteAsync(id);
+                var success = await _service.DeleteAsync(id); 
                 if (!success)
                 {
                     response.ResponseCode = 0;

@@ -11,49 +11,45 @@ namespace Payroll.Common.DTOs
     public class EmployeeDto
     {
         public long EmployeeId { get; set; }
-        [Required]
         public string UserName { get; set; } = string.Empty;
-        [Required]
         public string FirstName { get; set; } = string.Empty;
-        [Required]
         public string LastName { get; set; } = string.Empty;
-        [Required, EmailAddress]
         public string Email { get; set; } = string.Empty;
-        [Required]
         public string PhoneNumber { get; set; } = string.Empty;
-        public string? Gender { get; set; }
-        [Required]
+        public string Gender { get; set; } = string.Empty;
         public DateOnly DateOfBirth { get; set; }
-        [Required]
+
         public long DepartmentId { get; set; }
-        [Required]
+        public string? DepartmentName { get; set; }
+
         public long DesignationId { get; set; }
-        public string? SkillLevel { get; set; }
-        public string? TechnologyTags { get; set; }
-        [Required]
+        public string? DesignationName { get; set; }
+
+        public long EmployeeTypeId { get; set; }
+        public string? EmployeeTypeName { get; set; }
+
+        public string SkillLevel { get; set; } = string.Empty;
+        public string TechnologyTags { get; set; } = string.Empty;
         public long EmploymentType { get; set; }
-        [Required]
+
         public DateOnly JoinDate { get; set; }
         public DateOnly? ExitDate { get; set; }
-        [Required]
+
         public string BankName { get; set; } = string.Empty;
-        [Required]
         public string BankAccountNumber { get; set; } = string.Empty;
-        [Required]
         public string IfscCode { get; set; } = string.Empty;
-        [Required]
         public string PfNumber { get; set; } = string.Empty;
-        [Required]
         public string EsiNumber { get; set; } = string.Empty;
-        [Required]
+
         public long? CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedOn { get; set; }
         public long? LastModifiedBy { get; set; }
         public DateTime? LastModifiedOn { get; set; }
-        public RecordStatus RecordStatus { get; set; } = RecordStatus.Active;
-        [Required]
+
+        public RecordStatus RecordStatus { get; set; }
         public string Password { get; set; } = string.Empty;
     }
+
 
     public class ApiResponse<T>
     {
@@ -90,20 +86,21 @@ namespace Payroll.Common.DTOs
         public long DesignationId { get; set; }
         public string DesignationName { get; set; } = string.Empty;
         public string? Description { get; set; }
+
+        public long DepartmentId { get; set; }
+        public string? DepartmentName { get; set; }  
+
         public long CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public long? LastModifiedBy { get; set; }
         public DateTime? LastModifiedOn { get; set; }
         public int RecordStatus { get; set; }
-        public long DepartmentId { get; set; }
     }
 
     public class SkillDto
     {
         public long SkillId { get; set; }
-        [Required]
         public string SkillName { get; set; } = string.Empty;
-        [Required]
         public string Category { get; set; } = string.Empty;
         public long CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
@@ -125,12 +122,10 @@ namespace Payroll.Common.DTOs
     public class EmployeeSkillDto
     {
         public long EmployeeSkillId { get; set; }
-        [Required]
         public long EmployeeId { get; set; }
-        [Required]
         public long SkillId { get; set; }
-        public string? ProficiencyLevel { get; set; }
-        public bool Certificate { get; set; }
+        public string ProficiencyLevel { get; set; } = string.Empty;
+        public int Certificate { get; set; }
         public long CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public long? LastModifiedBy { get; set; }
@@ -138,17 +133,6 @@ namespace Payroll.Common.DTOs
         public int RecordStatus { get; set; }
     }
 
-    public class CreateEmployeeSkillRequest
-    {
-        [Required]
-        public long EmployeeId { get; set; }
-        [Required]
-        public long SkillId { get; set; }
-        public string? ProficiencyLevel { get; set; }
-        public bool Certificate { get; set; }
-        [Required]
-        public long CreatedBy { get; set; }
-    }
 
     public class EmployeeTypeDto
     {

@@ -14,9 +14,9 @@ namespace EmployeeService.Infrastructure.Services
 {
     public class DesignationRepository : IDesignationService
     {
-        private readonly PayrollDbContext _context;
+        private readonly DbContextPayrollProject _context;
 
-        public DesignationRepository(PayrollDbContext context)
+        public DesignationRepository(DbContextPayrollProject context)
         {
             _context = context;
         }
@@ -24,12 +24,14 @@ namespace EmployeeService.Infrastructure.Services
         public async Task<List<DesignationDto>> GetAllAsync()
         {
             return await _context.Designations
+                .Include(d => d.Department) // FK
                 .Select(d => new DesignationDto
                 {
                     DesignationId = d.DesignationId,
                     DesignationName = d.DesignationName,
                     Description = d.Description,
                     DepartmentId = d.DepartmentId,
+                    DepartmentName = d.Department.DepartmentName, 
                     CreatedBy = d.CreatedBy,
                     CreatedOn = d.CreatedOn,
                     LastModifiedBy = d.LastModifiedBy,
@@ -39,9 +41,13 @@ namespace EmployeeService.Infrastructure.Services
                 .ToListAsync();
         }
 
+
         public async Task<DesignationDto?> GetByIdAsync(long id)
         {
-            var entity = await _context.Designations.FindAsync(id);
+            var entity = await _context.Designations
+                .Include(d => d.Department)
+                .FirstOrDefaultAsync(x => x.DesignationId == id);
+
             if (entity == null) return null;
 
             return new DesignationDto
@@ -50,6 +56,7 @@ namespace EmployeeService.Infrastructure.Services
                 DesignationName = entity.DesignationName,
                 Description = entity.Description,
                 DepartmentId = entity.DepartmentId,
+                DepartmentName = entity.Department.DepartmentName,
                 CreatedBy = entity.CreatedBy,
                 CreatedOn = entity.CreatedOn,
                 LastModifiedBy = entity.LastModifiedBy,
@@ -60,15 +67,19 @@ namespace EmployeeService.Infrastructure.Services
 
         public async Task<DesignationDto> CreateAsync(DesignationDto dto)
         {
+            var department = await _context.Departments
+                .FirstOrDefaultAsync(d => d.DepartmentId == dto.DepartmentId);
+            if (department == null)
+                throw new ArgumentException($"Department with ID {dto.DepartmentId} does not exist.");
+
             var entity = new Designation
             {
                 DesignationName = dto.DesignationName,
                 Description = dto.Description,
+                DepartmentId = dto.DepartmentId,
                 CreatedBy = dto.CreatedBy,
                 CreatedOn = DateTime.UtcNow,
-                DepartmentId = dto.DepartmentId,
                 RecordStatus = dto.RecordStatus,
-
                 LastModifiedBy = dto.CreatedBy,
                 LastModifiedOn = DateTime.UtcNow
             };
@@ -81,14 +92,17 @@ namespace EmployeeService.Infrastructure.Services
                 DesignationId = entity.DesignationId,
                 DesignationName = entity.DesignationName,
                 Description = entity.Description,
+                DepartmentId = entity.DepartmentId,
+                DepartmentName = department.DepartmentName, 
                 CreatedBy = entity.CreatedBy,
                 CreatedOn = entity.CreatedOn,
                 LastModifiedBy = entity.LastModifiedBy,
                 LastModifiedOn = entity.LastModifiedOn,
-                RecordStatus = entity.RecordStatus,
-                DepartmentId = entity.DepartmentId
+                RecordStatus = entity.RecordStatus
             };
         }
+
+
 
 
         public async Task<bool> UpdateAsync(long id, DesignationDto dto)

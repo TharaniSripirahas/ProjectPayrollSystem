@@ -16,24 +16,33 @@ builder.Services.AddSwaggerGen();
 
 
 // Database
-builder.Services.AddDbContext<PayrollDbContext>(options =>
+builder.Services.AddDbContext<DbContextPayrollProject>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("UserDatabase"),
-        b => b.MigrationsAssembly("AuthService.API")
+        b => b.MigrationsAssembly("Payroll.Common")
+
     )
 );
 
+//builder.Services.AddControllers()
+//    .AddJsonOptions(options =>
+//    {
+//        options.JsonSerializerOptions.Converters.Add(new Payroll.Common.Converters.DateTimeConverter());
+//    });
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.Converters.Add(new Payroll.Common.Converters.DateTimeConverter());
+        options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
     });
+
 
 // Dependency Injection
 builder.Services.AddScoped<IEmployeeService, EmployeeService.Infrastructure.Services.EmployeeService>();
 builder.Services.AddScoped<IEmployeeTypeService, EmployeeTypeService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IDesignationService, DesignationRepository>();
+builder.Services.AddScoped<IEmployeeSkillService, EmployeeSkillService>();
+builder.Services.AddScoped<ISkillService, SkillService>();
 
 
 builder.Services.AddAuthorization();

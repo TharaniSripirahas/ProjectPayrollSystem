@@ -2,6 +2,7 @@
 using AuthService.Core.Interfaces;
 using AuthService.Core.PasswordService;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -17,16 +18,19 @@ namespace AuthService.Infrastructure.Service
 {
     public class AuthService : IAuthService
     {
-        private readonly PayrollDbContext _context;
+        private readonly DbContextPayrollProject _context;
         private readonly JwtSettings _jwtSettings;
         private readonly ILogger<AuthService> _logger;
         private readonly IPasswordService _passwordService;
 
         public AuthService(
-            PayrollDbContext context,
+            DbContextPayrollProject context,
             IOptions<JwtSettings> jwtSettings,
             ILogger<AuthService> logger,
             IPasswordService passwordService)
+
+            
+
         {
             _context = context;
             _jwtSettings = jwtSettings.Value;

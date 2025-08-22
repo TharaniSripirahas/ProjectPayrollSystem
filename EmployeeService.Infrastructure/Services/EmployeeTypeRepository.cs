@@ -13,9 +13,9 @@ namespace EmployeeService.Infrastructure.Services
 {
     public class EmployeeTypeService : IEmployeeTypeService
     {
-        private readonly PayrollDbContext _context;
+        private readonly DbContextPayrollProject _context;
 
-        public EmployeeTypeService(PayrollDbContext context)
+        public EmployeeTypeService(DbContextPayrollProject context)
         {
             _context = context;
         }

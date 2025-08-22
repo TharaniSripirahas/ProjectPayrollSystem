@@ -15,7 +15,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Database
-builder.Services.AddDbContext<PayrollDbContext>(options =>
+builder.Services.AddDbContext<DbContextPayrollProject>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("UserDatabase"),
         b => b.MigrationsAssembly("AuthService.API") 

@@ -12,9 +12,9 @@ namespace EmployeeService.Infrastructure.Services
 {
     public class EmployeeService : IEmployeeService
     {
-        private readonly PayrollDbContext _context;
+        private readonly DbContextPayrollProject _context;
 
-        public EmployeeService(PayrollDbContext context)
+        public EmployeeService(DbContextPayrollProject context)
         {
             _context = context;
         }
@@ -22,6 +22,9 @@ namespace EmployeeService.Infrastructure.Services
         public async Task<List<EmployeeDto>> GetAllAsync()
         {
             return await _context.Employees
+                .Include(e => e.Department)
+                .Include(e => e.Designation)
+                .Include(e => e.EmployeeType)
                 .Select(e => new EmployeeDto
                 {
                     EmployeeId = e.EmployeeId,
@@ -33,7 +36,11 @@ namespace EmployeeService.Infrastructure.Services
                     Gender = e.Gender,
                     DateOfBirth = e.DateOfBirth,
                     DepartmentId = e.DepartmentId,
+                    DepartmentName = e.Department != null ? e.Department.DepartmentName : null,
                     DesignationId = e.DesignationId,
+                    DesignationName = e.Designation != null ? e.Designation.DesignationName : null,
+                    EmployeeTypeId = e.EmployeeType != null ? e.EmployeeType.EmployeeTypeId : 0,
+                    EmployeeTypeName = e.EmployeeType != null ? e.EmployeeType.TypeName : null,
                     SkillLevel = e.SkillLevel,
                     TechnologyTags = e.TechnologyTags,
                     EmploymentType = e.EmploymentType,
@@ -56,7 +63,12 @@ namespace EmployeeService.Infrastructure.Services
 
         public async Task<EmployeeDto?> GetByIdAsync(long id)
         {
-            var e = await _context.Employees.FindAsync(id);
+            var e = await _context.Employees
+                .Include(x => x.Department)
+                .Include(x => x.Designation)
+                .Include(x => x.EmployeeType)
+                .FirstOrDefaultAsync(x => x.EmployeeId == id);
+
             if (e == null) return null;
 
             return new EmployeeDto
@@ -70,7 +82,11 @@ namespace EmployeeService.Infrastructure.Services
                 Gender = e.Gender,
                 DateOfBirth = e.DateOfBirth,
                 DepartmentId = e.DepartmentId,
+                DepartmentName = e.Department?.DepartmentName,
                 DesignationId = e.DesignationId,
+                DesignationName = e.Designation?.DesignationName,
+                EmployeeTypeId = e.EmployeeType?.EmployeeTypeId ?? 0,
+                EmployeeTypeName = e.EmployeeType?.TypeName,
                 SkillLevel = e.SkillLevel,
                 TechnologyTags = e.TechnologyTags,
                 EmploymentType = e.EmploymentType,
@@ -90,40 +106,40 @@ namespace EmployeeService.Infrastructure.Services
             };
         }
 
-        public async Task<bool> CreateAsync(EmployeeDto dto)
-        {
-            var emp = new Employees
-            {
-                UserName = dto.UserName,
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
-                Gender = dto.Gender,
-                DateOfBirth = dto.DateOfBirth,
-                DepartmentId = dto.DepartmentId,
-                DesignationId = dto.DesignationId,
-                SkillLevel = dto.SkillLevel,
-                TechnologyTags = dto.TechnologyTags,
-                EmploymentType = dto.EmploymentType,
-                JoinDate = dto.JoinDate,
-                ExitDate = dto.ExitDate,
-                BankName = dto.BankName,
-                BankAccountNumber = EncryptionHelper.EncryptStringToBytes(dto.BankAccountNumber),
-                IfscCode = dto.IfscCode,
-                PfNumber = dto.PfNumber,
-                EsiNumber = dto.EsiNumber,
-                CreatedBy = dto.CreatedBy,
-                CreatedOn = DateTime.UtcNow,
-                LastModifiedBy = dto.LastModifiedBy,
-                LastModifiedOn = dto.LastModifiedOn,
-                RecordStatus = (int)dto.RecordStatus,
-                PasswordHash = PasswordHelper.HashPassword(dto.Password)
-            };
+        //public async Task<bool> CreateAsync(EmployeeDto dto)
+        //{
+        //    var emp = new Employees
+        //    {
+        //        UserName = dto.UserName,
+        //        FirstName = dto.FirstName,
+        //        LastName = dto.LastName,
+        //        Email = dto.Email,
+        //        PhoneNumber = dto.PhoneNumber,
+        //        Gender = dto.Gender,
+        //        DateOfBirth = dto.DateOfBirth,
+        //        DepartmentId = dto.DepartmentId,
+        //        DesignationId = dto.DesignationId,
+        //        SkillLevel = dto.SkillLevel,
+        //        TechnologyTags = dto.TechnologyTags,
+        //        EmploymentType = dto.EmploymentType,
+        //        JoinDate = dto.JoinDate,
+        //        ExitDate = dto.ExitDate,
+        //        BankName = dto.BankName,
+        //        BankAccountNumber = EncryptionHelper.EncryptStringToBytes(dto.BankAccountNumber),
+        //        IfscCode = dto.IfscCode,
+        //        PfNumber = dto.PfNumber,
+        //        EsiNumber = dto.EsiNumber,
+        //        CreatedBy = dto.CreatedBy,
+        //        CreatedOn = DateTime.UtcNow,
+        //        LastModifiedBy = dto.LastModifiedBy,
+        //        LastModifiedOn = dto.LastModifiedOn,
+        //        RecordStatus = (int)dto.RecordStatus,
+        //        PasswordHash = PasswordHelper.HashPassword(dto.Password)
+        //    };
 
-            _context.Employees.Add(emp);
-            return await _context.SaveChangesAsync() > 0;
-        }
+        //    _context.Employees.Add(emp);
+        //    return await _context.SaveChangesAsync() > 0;
+        //}
 
         public async Task<bool> UpdateAsync(long id, EmployeeDto dto)
         {

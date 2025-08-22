@@ -13,9 +13,9 @@ namespace EmployeeService.Infrastructure.Services
 {
     public class DepartmentService : IDepartmentService
     {
-        private readonly PayrollDbContext _context;
+        private readonly DbContextPayrollProject _context;
 
-        public DepartmentService(PayrollDbContext context)
+        public DepartmentService(DbContextPayrollProject context)
         {
             _context = context;
         }

@@ -8,16 +8,31 @@ using System.Threading.Tasks;
 
 namespace Payroll.Common.Converters
 {
-    public class DateTimeConverter : JsonConverter<DateTime>
-    {
-        private readonly string _format = "yyyy-MM-dd HH:mm:ss";
+    //public class DateTimeConverter : JsonConverter<DateTime>
+    //{
+    //    private readonly string _format = "yyyy-MM-dd HH:mm:ss";
 
-        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    //    public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    //    {
+    //        return DateTime.Parse(reader.GetString()!);
+    //    }
+
+    //    public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+    //    {
+    //        writer.WriteStringValue(value.ToString(_format));
+    //    }
+    //}
+
+    public class DateOnlyJsonConverter : JsonConverter<DateOnly>
+    {
+        private readonly string _format = "yyyy-MM-dd";
+
+        public override DateOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return DateTime.Parse(reader.GetString()!);
+            return DateOnly.ParseExact(reader.GetString()!, _format);
         }
 
-        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, DateOnly value, JsonSerializerOptions options)
         {
             writer.WriteStringValue(value.ToString(_format));
         }

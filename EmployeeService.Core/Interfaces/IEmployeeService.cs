@@ -12,7 +12,7 @@ namespace EmployeeService.Core.Interfaces
     {
         Task<List<EmployeeDto>> GetAllAsync();
         Task<EmployeeDto?> GetByIdAsync(long id);
-        Task<bool> CreateAsync(EmployeeDto dto);
+       // Task<bool> CreateAsync(EmployeeDto dto);
         Task<bool> UpdateAsync(long id, EmployeeDto dto);
         Task<bool> DeleteAsync(long id);
         Task<ApiResult<EmployeeDto>> CreateEmployeeAsync(EmployeeDto dto);
@@ -30,8 +30,8 @@ namespace EmployeeService.Core.Interfaces
     {
         Task<List<SkillDto>> GetAllAsync();
         Task<SkillDto?> GetByIdAsync(long id);
-        Task<SkillDto> CreateAsync(CreateSkillRequest req);
-        Task<bool> UpdateAsync(long id, CreateSkillRequest req);
+        Task<SkillDto> CreateAsync(SkillDto dto);
+        Task<bool> UpdateAsync(long id, SkillDto dto);
         Task<bool> DeleteAsync(long id);
     }
 
@@ -39,10 +39,9 @@ namespace EmployeeService.Core.Interfaces
     {
         Task<List<EmployeeSkillDto>> GetAllAsync();
         Task<EmployeeSkillDto?> GetByIdAsync(long id);
-        Task<EmployeeSkillDto> CreateAsync(CreateEmployeeSkillRequest req);
-        Task<bool> UpdateAsync(long id, CreateEmployeeSkillRequest req);
+        Task<EmployeeSkillDto> CreateAsync(EmployeeSkillDto dto);
+        Task<bool> UpdateAsync(long id, EmployeeSkillDto dto);
         Task<bool> DeleteAsync(long id);
-        Task<List<EmployeeSkillDto>> GetByEmployeeIdAsync(long employeeId);
     }
 
     public interface IEmployeeTypeService

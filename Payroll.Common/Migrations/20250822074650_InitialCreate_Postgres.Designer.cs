@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Payroll.Common.DatabaseContext;
 
 #nullable disable
 
-namespace AuthService.API.Migrations
+namespace Payroll.Common.Migrations
 {
-    [DbContext(typeof(PayrollDbContext))]
-    partial class PayrollDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(DbContextPayrollProject))]
+    [Migration("20250822074650_InitialCreate_Postgres")]
+    partial class InitialCreate_Postgres
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,8 +41,7 @@ namespace AuthService.API.Migrations
 
                     b.Property<string>("DepartmentName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -75,7 +77,7 @@ namespace AuthService.API.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long?>("DepartmentId")
+                    b.Property<long>("DepartmentId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Description")
@@ -83,8 +85,7 @@ namespace AuthService.API.Migrations
 
                     b.Property<string>("DesignationName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.Property<long?>("LastModifiedBy")
                         .HasColumnType("bigint");
@@ -97,6 +98,8 @@ namespace AuthService.API.Migrations
 
                     b.HasKey("DesignationId");
 
+                    b.HasIndex("DepartmentId");
+
                     b.ToTable("Designations");
                 });
 
@@ -108,8 +111,8 @@ namespace AuthService.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("EmployeeSkillId"));
 
-                    b.Property<bool>("Certificate")
-                        .HasColumnType("boolean");
+                    b.Property<int>("Certificate")
+                        .HasColumnType("integer");
 
                     b.Property<long>("CreatedBy")
                         .HasColumnType("bigint");
@@ -139,6 +142,10 @@ namespace AuthService.API.Migrations
 
                     b.HasKey("EmployeeSkillId");
 
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("SkillId");
+
                     b.ToTable("EmployeeSkills");
                 });
 
@@ -157,7 +164,6 @@ namespace AuthService.API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<long?>("LastModifiedBy")
@@ -284,6 +290,12 @@ namespace AuthService.API.Migrations
 
                     b.HasKey("EmployeeId");
 
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("DesignationId");
+
+                    b.HasIndex("EmploymentType");
+
                     b.ToTable("Employees");
                 });
 
@@ -394,6 +406,63 @@ namespace AuthService.API.Migrations
                     b.ToTable("UserRoles");
                 });
 
+            modelBuilder.Entity("Payroll.Common.Models.Designation", b =>
+                {
+                    b.HasOne("Payroll.Common.Models.Department", "Department")
+                        .WithMany("Designations")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("Payroll.Common.Models.EmployeeSkill", b =>
+                {
+                    b.HasOne("Payroll.Common.Models.Employees", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Payroll.Common.Models.Skill", "Skill")
+                        .WithMany()
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Skill");
+                });
+
+            modelBuilder.Entity("Payroll.Common.Models.Employees", b =>
+                {
+                    b.HasOne("Payroll.Common.Models.Department", "Department")
+                        .WithMany("Employees")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Payroll.Common.Models.Designation", "Designation")
+                        .WithMany()
+                        .HasForeignKey("DesignationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Payroll.Common.Models.EmployeeType", "EmployeeType")
+                        .WithMany()
+                        .HasForeignKey("EmploymentType")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Designation");
+
+                    b.Navigation("EmployeeType");
+                });
+
             modelBuilder.Entity("Payroll.Common.Models.User", b =>
                 {
                     b.HasOne("Payroll.Common.Models.UserRole", "Role")
@@ -403,6 +472,13 @@ namespace AuthService.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Payroll.Common.Models.Department", b =>
+                {
+                    b.Navigation("Designations");
+
+                    b.Navigation("Employees");
                 });
 #pragma warning restore 612, 618
         }
