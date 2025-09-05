@@ -1,22 +1,25 @@
 ﻿using EmployeeService.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Payroll.Common.DatabaseContext;
-using Payroll.Common.DTOs;
-using Payroll.Common.Enums;
 using Payroll.Common.Helpers;
 using Payroll.Common.Models;
 using Payroll.Common.NonEntities;
-
+using static Payroll.Common.Enums.AppEnums;
 
 namespace EmployeeService.Infrastructure.Services
 {
     public class EmployeeService : IEmployeeService
     {
         private readonly DbContextPayrollProject _context;
+        private readonly IPasswordHelper _passwordHelper;
+        private readonly IEncryptionHelper _encryptionHelper;
 
-        public EmployeeService(DbContextPayrollProject context)
+
+        public EmployeeService(DbContextPayrollProject context, IPasswordHelper passwordHelper, IEncryptionHelper encryptionHelper)
         {
             _context = context;
+            _passwordHelper = passwordHelper;
+            _encryptionHelper = encryptionHelper;
         }
 
         public async Task<List<EmployeeDto>> GetAllAsync()
@@ -45,10 +48,9 @@ namespace EmployeeService.Infrastructure.Services
                     TechnologyTags = e.TechnologyTags,
                     EmploymentType = e.EmploymentType,
                     JoinDate = e.JoinDate,
-                    //ExitDate = e.ExitDate,
                     ExitDate = e.ExitDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
                     BankName = e.BankName,
-                    BankAccountNumber = EncryptionHelper.DecryptStringFromBytes(e.BankAccountNumber),
+                    BankAccountNumber = _encryptionHelper.DecryptStringFromBytes(e.BankAccountNumber),                    
                     IfscCode = e.IfscCode,
                     PfNumber = e.PfNumber,
                     EsiNumber = e.EsiNumber,
@@ -62,6 +64,7 @@ namespace EmployeeService.Infrastructure.Services
                 .ToListAsync();
         }
 
+        // Get Employee by ID
         public async Task<EmployeeDto?> GetByIdAsync(long id)
         {
             var e = await _context.Employees
@@ -94,7 +97,7 @@ namespace EmployeeService.Infrastructure.Services
                 JoinDate = e.JoinDate,
                 ExitDate = e.ExitDate,
                 BankName = e.BankName,
-                BankAccountNumber = EncryptionHelper.DecryptStringFromBytes(e.BankAccountNumber),
+                BankAccountNumber = _encryptionHelper.DecryptStringFromBytes(e.BankAccountNumber),
                 IfscCode = e.IfscCode,
                 PfNumber = e.PfNumber,
                 EsiNumber = e.EsiNumber,
@@ -107,41 +110,7 @@ namespace EmployeeService.Infrastructure.Services
             };
         }
 
-        //public async Task<bool> CreateAsync(EmployeeDto dto)
-        //{
-        //    var emp = new Employees
-        //    {
-        //        UserName = dto.UserName,
-        //        FirstName = dto.FirstName,
-        //        LastName = dto.LastName,
-        //        Email = dto.Email,
-        //        PhoneNumber = dto.PhoneNumber,
-        //        Gender = dto.Gender,
-        //        DateOfBirth = dto.DateOfBirth,
-        //        DepartmentId = dto.DepartmentId,
-        //        DesignationId = dto.DesignationId,
-        //        SkillLevel = dto.SkillLevel,
-        //        TechnologyTags = dto.TechnologyTags,
-        //        EmploymentType = dto.EmploymentType,
-        //        JoinDate = dto.JoinDate,
-        //        ExitDate = dto.ExitDate,
-        //        BankName = dto.BankName,
-        //        BankAccountNumber = EncryptionHelper.EncryptStringToBytes(dto.BankAccountNumber),
-        //        IfscCode = dto.IfscCode,
-        //        PfNumber = dto.PfNumber,
-        //        EsiNumber = dto.EsiNumber,
-        //        CreatedBy = dto.CreatedBy,
-        //        CreatedOn = DateTime.UtcNow,
-        //        LastModifiedBy = dto.LastModifiedBy,
-        //        LastModifiedOn = dto.LastModifiedOn,
-        //        RecordStatus = (int)dto.RecordStatus,
-        //        PasswordHash = PasswordHelper.HashPassword(dto.Password)
-        //    };
-
-        //    _context.Employees.Add(emp);
-        //    return await _context.SaveChangesAsync() > 0;
-        //}
-
+        // Update Employee
         public async Task<bool> UpdateAsync(long id, EmployeeDto dto)
         {
             var emp = await _context.Employees.FindAsync(id);
@@ -162,7 +131,7 @@ namespace EmployeeService.Infrastructure.Services
             emp.JoinDate = dto.JoinDate;
             emp.ExitDate = dto.ExitDate;
             emp.BankName = dto.BankName;
-            emp.BankAccountNumber = EncryptionHelper.EncryptStringToBytes(dto.BankAccountNumber);
+            emp.BankAccountNumber = _encryptionHelper.EncryptStringToBytes(dto.BankAccountNumber);
             emp.IfscCode = dto.IfscCode;
             emp.PfNumber = dto.PfNumber;
             emp.EsiNumber = dto.EsiNumber;
@@ -171,14 +140,13 @@ namespace EmployeeService.Infrastructure.Services
             emp.RecordStatus = (int)dto.RecordStatus;
 
             if (!string.IsNullOrWhiteSpace(dto.Password))
-            {
-                emp.PasswordHash = PasswordHelper.HashPassword(dto.Password);
-            }
+                emp.PasswordHash = _passwordHelper.HashPassword(dto.Password);
 
             _context.Employees.Update(emp);
             return await _context.SaveChangesAsync() > 0;
         }
 
+        // Delete Employee
         public async Task<bool> DeleteAsync(long id)
         {
             var emp = await _context.Employees.FindAsync(id);
@@ -188,9 +156,19 @@ namespace EmployeeService.Infrastructure.Services
             return await _context.SaveChangesAsync() > 0;
         }
 
+        // Create Employee (fixed)
         public async Task<ApiResult<EmployeeDto>> CreateEmployeeAsync(EmployeeDto dto)
         {
             var result = new ApiResult<EmployeeDto>();
+
+            if (string.IsNullOrWhiteSpace(dto.Password))
+            {
+                result.ResponseCode = 0;
+                result.Message = "Employee creation failed.";
+                result.ErrorDesc = "Password cannot be null or empty.";
+                return result;
+            }
+
             try
             {
                 var emp = new Employees
@@ -210,7 +188,7 @@ namespace EmployeeService.Infrastructure.Services
                     JoinDate = dto.JoinDate,
                     ExitDate = dto.ExitDate,
                     BankName = dto.BankName,
-                    BankAccountNumber = EncryptionHelper.EncryptStringToBytes(dto.BankAccountNumber),
+                    BankAccountNumber = _encryptionHelper.EncryptStringToBytes(dto.BankAccountNumber),
                     IfscCode = dto.IfscCode,
                     PfNumber = dto.PfNumber,
                     EsiNumber = dto.EsiNumber,
@@ -219,16 +197,29 @@ namespace EmployeeService.Infrastructure.Services
                     LastModifiedBy = dto.LastModifiedBy,
                     LastModifiedOn = dto.LastModifiedOn,
                     RecordStatus = (int)dto.RecordStatus,
-                    PasswordHash = PasswordHelper.HashPassword(dto.Password)
+                    PasswordHash = _passwordHelper.HashPassword(dto.Password)
                 };
 
                 _context.Employees.Add(emp);
                 await _context.SaveChangesAsync();
 
-                dto.EmployeeId = emp.EmployeeId;
-                dto.CreatedOn = emp.CreatedOn;
-                dto.LastModifiedOn = emp.LastModifiedOn;
-                dto.Password = string.Empty;
+                // Reload with related entities
+                var empWithRelations = await _context.Employees
+                    .Include(e => e.Department)
+                    .Include(e => e.Designation)
+                    .Include(e => e.EmployeeType)
+                    .FirstOrDefaultAsync(e => e.EmployeeId == emp.EmployeeId);
+
+                if (empWithRelations != null)
+                {
+                    dto.EmployeeId = empWithRelations.EmployeeId;
+                    dto.DepartmentName = empWithRelations.Department?.DepartmentName;
+                    dto.DesignationName = empWithRelations.Designation?.DesignationName;
+                    dto.EmployeeTypeName = empWithRelations.EmployeeType?.TypeName;
+                    dto.CreatedOn = empWithRelations.CreatedOn;
+                    dto.LastModifiedOn = empWithRelations.LastModifiedOn;
+                    dto.Password = string.Empty;
+                }
 
                 result.ResponseCode = 1;
                 result.Message = "Employee created successfully.";
@@ -240,6 +231,7 @@ namespace EmployeeService.Infrastructure.Services
                 result.Message = "Employee creation failed.";
                 result.ErrorDesc = ex.Message;
             }
+
             return result;
         }
     }

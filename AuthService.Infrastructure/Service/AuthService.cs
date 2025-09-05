@@ -1,13 +1,12 @@
-﻿using AuthService.Core.Configurations;
-using AuthService.Core.Interfaces;
+﻿using AuthService.Core.Interfaces;
 using AuthService.Core.PasswordService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Payroll.Common.Configurations;
 using Payroll.Common.DatabaseContext;
-using Payroll.Common.DTOs;
 using Payroll.Common.Models;
 using Payroll.Common.NonEntities;
 using System.IdentityModel.Tokens.Jwt;

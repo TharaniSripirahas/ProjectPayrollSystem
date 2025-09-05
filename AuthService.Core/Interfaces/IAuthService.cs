@@ -1,5 +1,4 @@
-﻿using Payroll.Common.DTOs;
-using Payroll.Common.NonEntities;
+﻿using Payroll.Common.NonEntities;
 
 namespace AuthService.Core.Interfaces
 {

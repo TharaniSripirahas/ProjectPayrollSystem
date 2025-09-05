@@ -1,6 +1,6 @@
 ﻿using AuthService.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Payroll.Common.DTOs;
+using Payroll.Common.NonEntities;
 
 namespace AuthService.API.Controllers
 {

@@ -22,6 +22,65 @@ namespace Payroll.Common.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Payroll.Common.Models.AttendanceLog", b =>
+                {
+                    b.Property<long>("AttendanceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("AttendanceId"));
+
+                    b.Property<long>("ApprovedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("EarlyDepartureMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("EmployeeName")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("IsLate")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("LastModifiedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("LateMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("LogDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime?>("PunchIn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("PunchOut")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("RecordStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("ShiftId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("AttendanceId");
+
+                    b.HasIndex("EmployeeName");
+
+                    b.HasIndex("ShiftId");
+
+                    b.ToTable("AttendanceLogs");
+                });
+
             modelBuilder.Entity("Payroll.Common.Models.Department", b =>
                 {
                     b.Property<long>("DepartmentId")
@@ -296,6 +355,151 @@ namespace Payroll.Common.Migrations
                     b.ToTable("Employees");
                 });
 
+            modelBuilder.Entity("Payroll.Common.Models.LeaveRequest", b =>
+                {
+                    b.Property<long>("LeaveId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("LeaveId"));
+
+                    b.Property<long>("ApprovedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("DaysCount")
+                        .HasColumnType("numeric");
+
+                    b.Property<long>("EmployeeName")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<long?>("LastModifiedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("LeaveTypeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("RecordStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("LeaveId");
+
+                    b.HasIndex("EmployeeName");
+
+                    b.HasIndex("LeaveTypeId");
+
+                    b.ToTable("LeaveRequests");
+                });
+
+            modelBuilder.Entity("Payroll.Common.Models.LeaveType", b =>
+                {
+                    b.Property<long>("LeaveTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("LeaveTypeId"));
+
+                    b.Property<long>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("IsPaid")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("LastModifiedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LeaveName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("MaxDaysPerYear")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RecordStatus")
+                        .HasColumnType("integer");
+
+                    b.HasKey("LeaveTypeId");
+
+                    b.ToTable("LeaveTypes");
+                });
+
+            modelBuilder.Entity("Payroll.Common.Models.Shift", b =>
+                {
+                    b.Property<long>("ShiftId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ShiftId"));
+
+                    b.Property<decimal?>("AllowancePercentage")
+                        .HasColumnType("numeric");
+
+                    b.Property<long>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<int>("IsHolidayShift")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IsNightShift")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IsWeekendShift")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("LastModifiedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("RecordStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ShiftName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<TimeOnly>("ShiftTime")
+                        .HasColumnType("time without time zone");
+
+                    b.HasKey("ShiftId");
+
+                    b.ToTable("Shifts");
+                });
+
             modelBuilder.Entity("Payroll.Common.Models.Skill", b =>
                 {
                     b.Property<long>("SkillId")
@@ -403,6 +607,25 @@ namespace Payroll.Common.Migrations
                     b.ToTable("UserRoles");
                 });
 
+            modelBuilder.Entity("Payroll.Common.Models.AttendanceLog", b =>
+                {
+                    b.HasOne("Payroll.Common.Models.Employees", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeName")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Payroll.Common.Models.Shift", "Shift")
+                        .WithMany("AttendanceLogs")
+                        .HasForeignKey("ShiftId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Shift");
+                });
+
             modelBuilder.Entity("Payroll.Common.Models.Designation", b =>
                 {
                     b.HasOne("Payroll.Common.Models.Department", "Department")
@@ -460,6 +683,25 @@ namespace Payroll.Common.Migrations
                     b.Navigation("EmployeeType");
                 });
 
+            modelBuilder.Entity("Payroll.Common.Models.LeaveRequest", b =>
+                {
+                    b.HasOne("Payroll.Common.Models.Employees", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeName")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Payroll.Common.Models.LeaveType", "LeaveType")
+                        .WithMany("LeaveRequests")
+                        .HasForeignKey("LeaveTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("LeaveType");
+                });
+
             modelBuilder.Entity("Payroll.Common.Models.User", b =>
                 {
                     b.HasOne("Payroll.Common.Models.UserRole", "Role")
@@ -476,6 +718,16 @@ namespace Payroll.Common.Migrations
                     b.Navigation("Designations");
 
                     b.Navigation("Employees");
+                });
+
+            modelBuilder.Entity("Payroll.Common.Models.LeaveType", b =>
+                {
+                    b.Navigation("LeaveRequests");
+                });
+
+            modelBuilder.Entity("Payroll.Common.Models.Shift", b =>
+                {
+                    b.Navigation("AttendanceLogs");
                 });
 #pragma warning restore 612, 618
         }

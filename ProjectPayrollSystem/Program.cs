@@ -1,5 +1,4 @@
-﻿using AuthService.Core.Configurations;
-using AuthService.Core.Interfaces;
+﻿using AuthService.Core.Interfaces;
 using AuthService.Core.PasswordService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using Payroll.Common.DatabaseContext;
 using System.Text;
 using AuthService.Infrastructure.Service;
+using Payroll.Common.Configurations;
+using Payroll.Common.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,12 +22,21 @@ builder.Services.AddDbContext<DbContextPayrollProject>(options =>
         b => b.MigrationsAssembly("AuthService.API") 
     )
 );
+
+
 // JWT Settings
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
 // Dependency Injection
 builder.Services.AddScoped<IAuthService, AuthService.Infrastructure.Service.AuthService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
+
+
+builder.Services.Configure<PasswordOptions>(builder.Configuration.GetSection("PasswordOptions"));
+builder.Services.AddSingleton<PasswordHelper>();
+
+// Register EncryptionHelper for DI
+builder.Services.AddScoped<EncryptionHelper>();
 
 // JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

@@ -18,6 +18,11 @@ namespace Payroll.Common.DatabaseContext
         public DbSet<Skill> Skills { get; set; } = null!;
         public DbSet<EmployeeSkill> EmployeeSkills { get; set; } = null!;
 
+        public DbSet<Shift> Shifts { get; set; } = null!;
+        public DbSet<LeaveType> LeaveTypes { get; set; } = null!;
+        public DbSet<LeaveRequest> LeaveRequests { get; set; } = null!;
+        public DbSet<AttendanceLog> AttendanceLogs { get; set; } = null!;
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -54,6 +54,7 @@ namespace Payroll.Common.Models
         [Required, Column(TypeName = "bytea")]
         public byte[] BankAccountNumber { get; set; } = Array.Empty<byte>();
 
+
         [Required, MaxLength(15)]
         public string IfscCode { get; set; } = string.Empty;
 

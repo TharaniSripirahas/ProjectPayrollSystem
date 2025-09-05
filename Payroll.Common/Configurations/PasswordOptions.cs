@@ -1,0 +1,13 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Payroll.Common.Configurations
+{
+    public class PasswordOptions
+    {
+        public int WorkFactor { get; set; } = 12; 
+    }
+}

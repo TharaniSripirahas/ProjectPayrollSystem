@@ -1,6 +1,5 @@
 ﻿using EmployeeService.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Payroll.Common.DTOs;
 using Payroll.Common.NonEntities;
 
 namespace EmployeeService.API.Controllers
@@ -16,18 +15,25 @@ namespace EmployeeService.API.Controllers
             _service = service;
         }
 
-        // Get All Employees
-        [HttpGet]
-        public async Task<ActionResult<ApiResponse<EmployeeDto>>> GetAll()
+        // Helper to build default response
+        private static ApiResponse<T> BuildResponse<T>() where T : class
         {
-            var response = new ApiResponse<EmployeeDto>
+            return new ApiResponse<T>
             {
                 ResponseCode = -1,
                 Message = string.Empty,
                 ErrorDesc = string.Empty,
-                ResponseData = new List<EmployeeDto>()
+                ResponseData = new List<T>()
             };
+        }
 
+        // -------------------- GET ALL --------------------
+        [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 500)]
+        public async Task<ActionResult<ApiResponse<EmployeeDto>>> GetAll()
+        {
+            var response = BuildResponse<EmployeeDto>();
             try
             {
                 var employees = await _service.GetAllAsync();
@@ -45,18 +51,14 @@ namespace EmployeeService.API.Controllers
             }
         }
 
-        // Get Employee by ID
+        // -------------------- GET BY ID --------------------
         [HttpGet("{id:long}")]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 404)]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 500)]
         public async Task<ActionResult<ApiResponse<EmployeeDto>>> Get(long id)
         {
-            var response = new ApiResponse<EmployeeDto>
-            {
-                ResponseCode = -1,
-                Message = string.Empty,
-                ErrorDesc = string.Empty,
-                ResponseData = new List<EmployeeDto>()
-            };
-
+            var response = BuildResponse<EmployeeDto>();
             try
             {
                 var employee = await _service.GetByIdAsync(id);
@@ -81,17 +83,14 @@ namespace EmployeeService.API.Controllers
             }
         }
 
-        // Create Employee
+        // -------------------- CREATE --------------------
         [HttpPost]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 201)]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 400)]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 500)]
         public async Task<ActionResult<ApiResponse<EmployeeDto>>> Create([FromBody] EmployeeDto dto)
         {
-            var response = new ApiResponse<EmployeeDto>
-            {
-                ResponseCode = -1,
-                Message = string.Empty,
-                ErrorDesc = string.Empty,
-                ResponseData = new List<EmployeeDto>()
-            };
+            var response = BuildResponse<EmployeeDto>();
 
             if (!ModelState.IsValid)
             {
@@ -105,19 +104,17 @@ namespace EmployeeService.API.Controllers
 
             try
             {
-                var result = await _service.CreateEmployeeAsync(dto); // returns ApiResult<EmployeeDto>
+                var result = await _service.CreateEmployeeAsync(dto);
+
                 if (result.ResponseCode != 1)
                 {
-                    response.ResponseCode = 0;
-                    response.Message = result.Message ?? "Failed to create employee.";
-                    response.ErrorDesc = result.ErrorDesc;
-                    return StatusCode(500, response);
+                    return StatusCode(500, result);
                 }
 
-                response.ResponseCode = 1;
-                response.Message = result.Message;
-                response.ResponseData = result.ResponseData;
-                return Ok(response);
+                // Use created employee ID for CreatedAtAction
+                var createdEmployeeId = result.ResponseData.FirstOrDefault()?.EmployeeId ?? 0;
+
+                return CreatedAtAction(nameof(Get), new { id = createdEmployeeId }, result);
             }
             catch (Exception ex)
             {
@@ -128,18 +125,17 @@ namespace EmployeeService.API.Controllers
             }
         }
 
-        // Update Employee
+        // -------------------- UPDATE --------------------
         [HttpPut("{id:long}")]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 400)]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 404)]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 500)]
         public async Task<ActionResult<ApiResponse<EmployeeDto>>> Update(long id, [FromBody] EmployeeDto dto)
         {
-            var response = new ApiResponse<EmployeeDto>
-            {
-                ResponseCode = -1,
-                Message = string.Empty,
-                ErrorDesc = string.Empty,
-                ResponseData = new List<EmployeeDto>()
-            };
+            var response = BuildResponse<EmployeeDto>();
 
+            // Ignore password field in updates
             ModelState.Remove(nameof(EmployeeDto.Password));
 
             if (!ModelState.IsValid)
@@ -176,21 +172,18 @@ namespace EmployeeService.API.Controllers
             }
         }
 
-        // Delete Employee
+        // -------------------- DELETE --------------------
         [HttpDelete("{id:long}")]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 404)]
+        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 500)]
         public async Task<ActionResult<ApiResponse<EmployeeDto>>> Delete(long id)
         {
-            var response = new ApiResponse<EmployeeDto>
-            {
-                ResponseCode = -1,
-                Message = string.Empty,
-                ErrorDesc = string.Empty,
-                ResponseData = new List<EmployeeDto>()
-            };
+            var response = BuildResponse<EmployeeDto>();
 
             try
             {
-                var success = await _service.DeleteAsync(id); 
+                var success = await _service.DeleteAsync(id);
                 if (!success)
                 {
                     response.ResponseCode = 0;
