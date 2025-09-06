@@ -14,9 +14,9 @@ namespace AttendanceShift.Infrastructure.Services
 {
     public class LeaveTypeService : ILeaveTypeService
     {
-        private readonly DbContextPayrollProject _context;
+        private readonly PayrollDbContext _context;
 
-        public LeaveTypeService(DbContextPayrollProject context)
+        public LeaveTypeService(PayrollDbContext context)
         {
             _context = context;
         }

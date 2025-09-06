@@ -17,13 +17,13 @@ namespace AuthService.Infrastructure.Service
 {
     public class AuthService : IAuthService
     {
-        private readonly DbContextPayrollProject _context;
+        private readonly PayrollDbContext _context;
         private readonly JwtSettings _jwtSettings;
         private readonly ILogger<AuthService> _logger;
         private readonly IPasswordService _passwordService;
 
         public AuthService(
-            DbContextPayrollProject context,
+            PayrollDbContext context,
             IOptions<JwtSettings> jwtSettings,
             ILogger<AuthService> logger,
             IPasswordService passwordService)

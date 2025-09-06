@@ -14,8 +14,6 @@ namespace EmployeeService.API.Controllers
         {
             _service = service;
         }
-
-        // Helper to build default response
         private static ApiResponse<T> BuildResponse<T>() where T : class
         {
             return new ApiResponse<T>
@@ -27,7 +25,6 @@ namespace EmployeeService.API.Controllers
             };
         }
 
-        // -------------------- GET ALL --------------------
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 200)]
         [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 500)]
@@ -51,7 +48,7 @@ namespace EmployeeService.API.Controllers
             }
         }
 
-        // -------------------- GET BY ID --------------------
+
         [HttpGet("{id:long}")]
         [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 200)]
         [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 404)]
@@ -83,7 +80,7 @@ namespace EmployeeService.API.Controllers
             }
         }
 
-        // -------------------- CREATE --------------------
+
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 201)]
         [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 400)]
@@ -111,7 +108,6 @@ namespace EmployeeService.API.Controllers
                     return StatusCode(500, result);
                 }
 
-                // Use created employee ID for CreatedAtAction
                 var createdEmployeeId = result.ResponseData.FirstOrDefault()?.EmployeeId ?? 0;
 
                 return CreatedAtAction(nameof(Get), new { id = createdEmployeeId }, result);
@@ -125,7 +121,6 @@ namespace EmployeeService.API.Controllers
             }
         }
 
-        // -------------------- UPDATE --------------------
         [HttpPut("{id:long}")]
         [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 200)]
         [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 400)]
@@ -135,7 +130,7 @@ namespace EmployeeService.API.Controllers
         {
             var response = BuildResponse<EmployeeDto>();
 
-            // Ignore password field in updates
+
             ModelState.Remove(nameof(EmployeeDto.Password));
 
             if (!ModelState.IsValid)
@@ -172,7 +167,6 @@ namespace EmployeeService.API.Controllers
             }
         }
 
-        // -------------------- DELETE --------------------
         [HttpDelete("{id:long}")]
         [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 200)]
         [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 404)]

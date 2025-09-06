@@ -14,9 +14,9 @@ namespace AttendanceShift.Infrastructure.Services
 {
     public class ShiftService : IShiftService
         {
-            private readonly DbContextPayrollProject _context;
+            private readonly PayrollDbContext _context;
 
-            public ShiftService(DbContextPayrollProject context)
+            public ShiftService(PayrollDbContext context)
             {
                 _context = context;
             }

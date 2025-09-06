@@ -9,9 +9,9 @@ namespace AdminService.Infrastructure.Services
 {
     public class EmployeeSkillService : IEmployeeSkillService
     {
-        private readonly DbContextPayrollProject _context;
+        private readonly PayrollDbContext _context;
 
-        public EmployeeSkillService(DbContextPayrollProject context)
+        public EmployeeSkillService(PayrollDbContext context)
         {
             _context = context;
         }

@@ -1,11 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Payroll.Common.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Payroll.Common.DatabaseContext
 {
-    public class DbContextPayrollProject : DbContext
+
+    public class PayrollDbContext : DbContext
     {
-        public DbContextPayrollProject(DbContextOptions<DbContextPayrollProject> options)
+        public PayrollDbContext(DbContextOptions<PayrollDbContext> options)
             : base(options) { }
 
         public DbSet<User> Users { get; set; } = null!;
@@ -77,3 +83,4 @@ namespace Payroll.Common.DatabaseContext
         }
     }
 }
+

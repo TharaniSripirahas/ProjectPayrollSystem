@@ -15,9 +15,9 @@ namespace AttendanceShift.Infrastructure.Services
 {
     public class AttendanceLogService : IAttendanceLogService
     {
-        private readonly DbContextPayrollProject _context;
+        private readonly PayrollDbContext _context;
 
-        public AttendanceLogService(DbContextPayrollProject context)
+        public AttendanceLogService(PayrollDbContext context)
         {
             _context = context;
         }

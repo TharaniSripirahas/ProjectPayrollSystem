@@ -8,9 +8,9 @@ namespace AdminService.Infrastructure.Services
 {
     public class SkillService : ISkillService
     {
-        private readonly DbContextPayrollProject _context;
+        private readonly PayrollDbContext _context;
 
-        public SkillService(DbContextPayrollProject context)
+        public SkillService(PayrollDbContext context)
         {
             _context = context;
         }

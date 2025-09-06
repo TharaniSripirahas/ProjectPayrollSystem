@@ -8,9 +8,9 @@ namespace AdminService.Infrastructure.Services
 {
     public class DesignationRepository : IDesignationService
     {
-        private readonly DbContextPayrollProject _context;
+        private readonly PayrollDbContext _context;
 
-        public DesignationRepository(DbContextPayrollProject context)
+        public DesignationRepository(PayrollDbContext context)
         {
             _context = context;
         }
@@ -18,7 +18,7 @@ namespace AdminService.Infrastructure.Services
         public async Task<List<DesignationDto>> GetAllAsync()
         {
             return await _context.Designations
-                .Include(d => d.Department) // FK
+                .Include(d => d.Department) 
                 .Select(d => new DesignationDto
                 {
                     DesignationId = d.DesignationId,

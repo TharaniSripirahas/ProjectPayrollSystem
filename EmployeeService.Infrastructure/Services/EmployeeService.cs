@@ -10,12 +10,12 @@ namespace EmployeeService.Infrastructure.Services
 {
     public class EmployeeService : IEmployeeService
     {
-        private readonly DbContextPayrollProject _context;
+        private readonly PayrollDbContext _context;
         private readonly IPasswordHelper _passwordHelper;
         private readonly IEncryptionHelper _encryptionHelper;
 
 
-        public EmployeeService(DbContextPayrollProject context, IPasswordHelper passwordHelper, IEncryptionHelper encryptionHelper)
+        public EmployeeService(PayrollDbContext context, IPasswordHelper passwordHelper, IEncryptionHelper encryptionHelper)
         {
             _context = context;
             _passwordHelper = passwordHelper;
@@ -156,7 +156,7 @@ namespace EmployeeService.Infrastructure.Services
             return await _context.SaveChangesAsync() > 0;
         }
 
-        // Create Employee (fixed)
+        // Create Employee 
         public async Task<ApiResult<EmployeeDto>> CreateEmployeeAsync(EmployeeDto dto)
         {
             var result = new ApiResult<EmployeeDto>();
@@ -203,7 +203,6 @@ namespace EmployeeService.Infrastructure.Services
                 _context.Employees.Add(emp);
                 await _context.SaveChangesAsync();
 
-                // Reload with related entities
                 var empWithRelations = await _context.Employees
                     .Include(e => e.Department)
                     .Include(e => e.Designation)

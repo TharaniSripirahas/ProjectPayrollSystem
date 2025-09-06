@@ -16,7 +16,7 @@ builder.Services.AddSwaggerGen();
 
 
 // Database
-builder.Services.AddDbContext<DbContextPayrollProject>(options =>
+builder.Services.AddDbContext<PayrollDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("UserDatabase"),
         b => b.MigrationsAssembly("Payroll.Common") 

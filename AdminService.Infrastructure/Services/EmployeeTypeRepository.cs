@@ -8,9 +8,9 @@ namespace AdminService.Infrastructure.Services
 {
     public class EmployeeTypeService : IEmployeeTypeService
     {
-        private readonly DbContextPayrollProject _context;
+        private readonly PayrollDbContext _context;
 
-        public EmployeeTypeService(DbContextPayrollProject context)
+        public EmployeeTypeService(PayrollDbContext context)
         {
             _context = context;
         }

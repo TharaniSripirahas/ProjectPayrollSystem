@@ -108,7 +108,6 @@ namespace Payroll.Common.Helpers
             aes.GenerateIV();
 
             using var ms = new MemoryStream();
-            // prepend IV
             ms.Write(aes.IV, 0, aes.IV.Length);
 
             using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
@@ -131,7 +130,7 @@ namespace Payroll.Common.Helpers
             aes.Mode = CipherMode.CBC;
             aes.Padding = PaddingMode.PKCS7;
 
-            int ivLength = aes.BlockSize / 8; // typically 16 bytes
+            int ivLength = aes.BlockSize / 8; 
             if (cipherBytes.Length < ivLength)
                 return string.Empty;
 
