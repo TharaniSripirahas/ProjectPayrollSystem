@@ -21,25 +21,25 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
     });
 
-// -------------------- SWAGGER --------------------
+//  SWAGGER 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// -------------------- DATABASE --------------------
+//  DATABASE 
 builder.Services.AddDbContext<PayrollDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("UserDatabase"))
 );
 
-// -------------------- JWT SETTINGS --------------------
+// JWT SETTINGS
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
-// -------------------- HELPERS --------------------
+// HELPERS 
 builder.Services.AddSingleton<IEncryptionHelper, EncryptionHelper>();
 builder.Services.Configure<PasswordOptions>(builder.Configuration.GetSection("Security"));
 builder.Services.AddScoped<IPasswordHelper, PasswordHelper>();
 
-// -------------------- DEPENDENCY INJECTION --------------------
-// Employee services
+// DEPENDENCY INJECTION 
+
 builder.Services.AddScoped<IEmployeeService, EmployeeService.Infrastructure.Services.EmployeeService>();
 builder.Services.AddScoped<IEmployeeTypeService, EmployeeTypeService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
@@ -50,7 +50,7 @@ builder.Services.AddScoped<ISkillService, SkillService>();
 // Admin services
 // (Add your AdminService DI here as needed)
 
-// -------------------- AUTHENTICATION & AUTHORIZATION --------------------
+// AUTHENTICATION & AUTHORIZATION 
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -75,7 +75,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// -------------------- BUILD APP --------------------
+//  BUILD APP 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

@@ -59,12 +59,6 @@ namespace Payroll.Common.NonEntities
         public RecordStatus RecordStatus { get; set; }
     }
 
-
-
-
-
-
-
     public class LeaveRequestDto
     {
         public long LeaveId { get; set; }

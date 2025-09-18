@@ -15,7 +15,6 @@ namespace AdminService.API.Controllers
             _service = service;
         }
 
-        // Get All Designations
         [HttpGet]
         public async Task<ActionResult<ApiResponse<DesignationDto>>> GetAll()
         {
@@ -38,7 +37,6 @@ namespace AdminService.API.Controllers
             }
         }
 
-        // Get Designation by ID
         [HttpGet("{id:long}")]
         public async Task<ActionResult<ApiResponse<DesignationDto>>> GetById(long id)
         {
@@ -68,7 +66,6 @@ namespace AdminService.API.Controllers
             }
         }
 
-        // Create Designation
         [HttpPost]
         public async Task<ActionResult<ApiResponse<DesignationDto>>> Create([FromBody] DesignationDto dto)
         {
@@ -102,7 +99,6 @@ namespace AdminService.API.Controllers
         }
 
 
-        // Update Designation
         [HttpPut("{id:long}")]
         public async Task<ActionResult<ApiResponse<DesignationDto>>> Update(long id, [FromBody] DesignationDto dto)
         {
@@ -139,7 +135,6 @@ namespace AdminService.API.Controllers
             }
         }
 
-        // Delete Designation
         [HttpDelete("{id:long}")]
         public async Task<ActionResult<ApiResponse<DesignationDto>>> Delete(long id)
         {

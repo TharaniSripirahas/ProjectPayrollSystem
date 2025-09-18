@@ -14,188 +14,112 @@ namespace EmployeeService.API.Controllers
         {
             _service = service;
         }
-        private static ApiResponse<T> BuildResponse<T>() where T : class
-        {
-            return new ApiResponse<T>
-            {
-                ResponseCode = -1,
-                Message = string.Empty,
-                ErrorDesc = string.Empty,
-                ResponseData = new List<T>()
-            };
-        }
 
         [HttpGet]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 200)]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 500)]
-        public async Task<ActionResult<ApiResponse<EmployeeDto>>> GetAll()
+        public async Task<ActionResult<ApiResult<EmployeeDto>>> GetAll()
         {
-            var response = BuildResponse<EmployeeDto>();
-            try
+            var result = await _service.GetAllAsync();
+            return Ok(new ApiResult<EmployeeDto>
             {
-                var employees = await _service.GetAllAsync();
-                response.ResponseCode = 1;
-                response.Message = "Success";
-                response.ResponseData = employees;
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.ResponseCode = 0;
-                response.Message = "Failed to fetch employees.";
-                response.ErrorDesc = ex.Message;
-                return StatusCode(500, response);
-            }
+                ResponseCode = 1,
+                Message = "Success",
+                ResponseData = result
+            });
         }
-
 
         [HttpGet("{id:long}")]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 200)]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 404)]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 500)]
-        public async Task<ActionResult<ApiResponse<EmployeeDto>>> Get(long id)
+        public async Task<ActionResult<ApiResult<EmployeeDto>>> Get(long id)
         {
-            var response = BuildResponse<EmployeeDto>();
-            try
-            {
-                var employee = await _service.GetByIdAsync(id);
-                if (employee == null)
-                {
-                    response.ResponseCode = 0;
-                    response.Message = "Employee not found.";
-                    return NotFound(response);
-                }
+            var employee = await _service.GetByIdAsync(id);
 
-                response.ResponseCode = 1;
-                response.Message = "Success";
-                response.ResponseData.Add(employee);
-                return Ok(response);
-            }
-            catch (Exception ex)
+            var result = new ApiResult<EmployeeDto>();
+            if (employee == null)
             {
-                response.ResponseCode = 0;
-                response.Message = "Error retrieving employee.";
-                response.ErrorDesc = ex.Message;
-                return StatusCode(500, response);
+                result.ResponseCode = 0;
+                result.Message = "Employee not found.";
+                return NotFound(result);
             }
+
+            result.ResponseCode = 1;
+            result.Message = "Success";
+            result.ResponseData = new List<EmployeeDto> { employee };
+            return Ok(result);
         }
 
-
         [HttpPost]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 201)]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 400)]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 500)]
-        public async Task<ActionResult<ApiResponse<EmployeeDto>>> Create([FromBody] EmployeeDto dto)
+        public async Task<ActionResult<ApiResult<EmployeeDto>>> Create([FromBody] EmployeeDto dto)
         {
-            var response = BuildResponse<EmployeeDto>();
-
             if (!ModelState.IsValid)
             {
-                response.ResponseCode = 0;
-                response.Message = "Validation failed.";
-                response.ErrorDesc = string.Join("; ", ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage));
-                return BadRequest(response);
-            }
-
-            try
-            {
-                var result = await _service.CreateEmployeeAsync(dto);
-
-                if (result.ResponseCode != 1)
+                return BadRequest(new ApiResult<EmployeeDto>
                 {
-                    return StatusCode(500, result);
-                }
-
-                var createdEmployeeId = result.ResponseData.FirstOrDefault()?.EmployeeId ?? 0;
-
-                return CreatedAtAction(nameof(Get), new { id = createdEmployeeId }, result);
+                    ResponseCode = 0,
+                    Message = "Validation failed.",
+                    ErrorDesc = string.Join("; ", ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage))
+                });
             }
-            catch (Exception ex)
-            {
-                response.ResponseCode = 0;
-                response.Message = "Error occurred while creating employee.";
-                response.ErrorDesc = ex.Message;
-                return StatusCode(500, response);
-            }
+
+            var result = await _service.CreateEmployeeAsync(dto);
+            if (result.ResponseCode == 0)
+                return StatusCode(500, result);
+
+            return Ok(result);
         }
 
         [HttpPut("{id:long}")]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 200)]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 400)]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 404)]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 500)]
-        public async Task<ActionResult<ApiResponse<EmployeeDto>>> Update(long id, [FromBody] EmployeeDto dto)
+        public async Task<ActionResult<ApiResult<EmployeeDto>>> Update(long id, [FromBody] EmployeeDto dto)
         {
-            var response = BuildResponse<EmployeeDto>();
-
-
-            ModelState.Remove(nameof(EmployeeDto.Password));
-
             if (!ModelState.IsValid)
             {
-                response.ResponseCode = 0;
-                response.Message = "Validation failed.";
-                response.ErrorDesc = string.Join("; ", ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage));
-                return BadRequest(response);
-            }
-
-            try
-            {
-                var success = await _service.UpdateAsync(id, dto);
-                if (!success)
+                return BadRequest(new ApiResult<EmployeeDto>
                 {
-                    response.ResponseCode = 0;
-                    response.Message = "Employee not found.";
-                    return NotFound(response);
-                }
+                    ResponseCode = 0,
+                    Message = "Validation failed.",
+                    ErrorDesc = string.Join("; ", ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage))
+                });
+            }
 
-                response.ResponseCode = 1;
-                response.Message = "Employee updated successfully.";
-                response.ResponseData.Add(dto);
-                return Ok(response);
-            }
-            catch (Exception ex)
+            var success = await _service.UpdateAsync(id, dto);
+            if (!success)
             {
-                response.ResponseCode = 0;
-                response.Message = "Error updating employee.";
-                response.ErrorDesc = ex.Message;
-                return StatusCode(500, response);
+                return NotFound(new ApiResult<EmployeeDto>
+                {
+                    ResponseCode = 0,
+                    Message = "Employee not found."
+                });
             }
+
+            return Ok(new ApiResult<EmployeeDto>
+            {
+                ResponseCode = 1,
+                Message = "Employee updated successfully.",
+                ResponseData = new List<EmployeeDto> { dto }
+            });
         }
 
         [HttpDelete("{id:long}")]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 200)]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 404)]
-        [ProducesResponseType(typeof(ApiResponse<EmployeeDto>), 500)]
-        public async Task<ActionResult<ApiResponse<EmployeeDto>>> Delete(long id)
+        public async Task<ActionResult<ApiResult<bool>>> Delete(long id)
         {
-            var response = BuildResponse<EmployeeDto>();
-
-            try
+            var success = await _service.DeleteAsync(id);
+            if (!success)
             {
-                var success = await _service.DeleteAsync(id);
-                if (!success)
+                return NotFound(new ApiResult<bool>
                 {
-                    response.ResponseCode = 0;
-                    response.Message = "Employee not found.";
-                    return NotFound(response);
-                }
+                    ResponseCode = 0,
+                    Message = "Employee not found."
+                });
+            }
 
-                response.ResponseCode = 1;
-                response.Message = "Employee deleted successfully.";
-                return Ok(response);
-            }
-            catch (Exception ex)
+            return Ok(new ApiResult<bool>
             {
-                response.ResponseCode = 0;
-                response.Message = "Error deleting employee.";
-                response.ErrorDesc = ex.Message;
-                return StatusCode(500, response);
-            }
+                ResponseCode = 1,
+                Message = "Employee deleted successfully.",
+                ResponseData = new List<bool> { true }
+            });
         }
     }
 }

@@ -171,7 +171,7 @@ namespace EmployeeService.Infrastructure.Services
 
             try
             {
-                var emp = new Employees
+                var emp = new Employee
                 {
                     UserName = dto.UserName,
                     FirstName = dto.FirstName,

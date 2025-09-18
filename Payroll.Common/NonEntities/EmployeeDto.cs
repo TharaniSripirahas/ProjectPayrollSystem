@@ -37,7 +37,6 @@ namespace Payroll.Common.NonEntities
         public DateOnly? ExitDate { get; set; }
 
         public string BankName { get; set; } = string.Empty;
-        // Keep as string for API input/output
         public string BankAccountNumber { get; set; } = string.Empty;
         public string IfscCode { get; set; } = string.Empty;
         public string PfNumber { get; set; } = string.Empty;

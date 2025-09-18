@@ -1,187 +1,107 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Payroll.Common.Models
+namespace Payroll.Common.Models;
+
+public partial class Employee
 {
-    public class Employees
-    {
-        [Key]
-        public long EmployeeId { get; set; }
+    public long EmployeeId { get; set; }
 
-        [Required, MaxLength(50)]
-        public string UserName { get; set; } = string.Empty;
+    public string UserName { get; set; } = null!;
 
-        [Required, MaxLength(50)]
-        public string FirstName { get; set; } = string.Empty;
+    public string FirstName { get; set; } = null!;
 
-        [Required, MaxLength(50)]
-        public string LastName { get; set; } = string.Empty;
+    public string LastName { get; set; } = null!;
 
-        [Required, MaxLength(100)]
-        public string Email { get; set; } = string.Empty;
+    public string Email { get; set; } = null!;
 
-        [Required, MaxLength(15)]
-        public string PhoneNumber { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = null!;
 
-        [MaxLength(15)]
-        public string? Gender { get; set; }
+    public string? Gender { get; set; }
 
-        [Column(TypeName = "date")]
-        public DateOnly DateOfBirth { get; set; }
+    public DateOnly DateOfBirth { get; set; }
 
-        // Foreign Keys
-        public long DepartmentId { get; set; }
-        public long DesignationId { get; set; }
-        public long EmploymentType { get; set; }
+    public long DepartmentId { get; set; }
 
-        public string? SkillLevel { get; set; }
-        public string? TechnologyTags { get; set; }
+    public long DesignationId { get; set; }
 
-        [Column(TypeName = "date")]
-        public DateOnly JoinDate { get; set; }
+    public long EmploymentType { get; set; }
 
-        [Column(TypeName = "date")]
-        public DateOnly? ExitDate { get; set; }
+    public string? SkillLevel { get; set; }
 
-        [Required, MaxLength(50)]
-        public string BankName { get; set; } = string.Empty;
+    public string? TechnologyTags { get; set; }
 
-        [Required, Column(TypeName = "bytea")]
-        public byte[] BankAccountNumber { get; set; } = Array.Empty<byte>();
+    public DateOnly JoinDate { get; set; }
 
+    public DateOnly? ExitDate { get; set; }
 
-        [Required, MaxLength(15)]
-        public string IfscCode { get; set; } = string.Empty;
+    public string BankName { get; set; } = null!;
 
-        [Required, MaxLength(30)]
-        public string PfNumber { get; set; } = string.Empty;
+    public byte[] BankAccountNumber { get; set; } = null!;
 
-        [Required, MaxLength(30)]
-        public string EsiNumber { get; set; } = string.Empty;
+    public string IfscCode { get; set; } = null!;
 
-        public long? CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
-        public long? LastModifiedBy { get; set; }
-        public DateTime? LastModifiedOn { get; set; }
+    public string PfNumber { get; set; } = null!;
 
-        public int RecordStatus { get; set; } = 0;
+    public string EsiNumber { get; set; } = null!;
 
-        [Required]
-        public string PasswordHash { get; set; } = string.Empty;
+    public long? CreatedBy { get; set; }
 
-        public object UserRoles { get; internal set; }
+    public DateTime CreatedOn { get; set; }
 
-        // Navigation properties
-        public Department Department { get; set; } = null!;
-        public Designation Designation { get; set; } = null!;
-        public EmployeeType EmployeeType { get; set; } = null!;
-    }
+    public long? LastModifiedBy { get; set; }
 
+    public DateTime? LastModifiedOn { get; set; }
 
+    public int RecordStatus { get; set; }
 
+    public string PasswordHash { get; set; } = null!;
 
-    public class EmployeeType
-    {
-        [Key]
-        public long EmployeeTypeId { get; set; }
-        public string TypeName { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public long CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
-        public long? LastModifiedBy { get; set; }
-        public DateTime? LastModifiedOn { get; set; }
-        public int RecordStatus { get; set; }
-    }
+    public long? EmployeeTypeId { get; set; }
 
-    public class Department
-    {
-        [Key]
-        public long DepartmentId { get; set; }
-        public string DepartmentName { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public long? ManagerId { get; set; }
-        public long CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
-        public long? LastModifiedBy { get; set; }
-        public DateTime? LastModifiedOn { get; set; }
-        public int RecordStatus { get; set; } = 0;
+    public virtual ICollection<AttendanceLog> AttendanceLogs { get; set; } = new List<AttendanceLog>();
 
-        public ICollection<Designation> Designations { get; set; } = new List<Designation>();
-        public ICollection<Employees> Employees { get; set; } = new List<Employees>();
-    }
+    public virtual Department Department { get; set; } = null!;
 
-    public class Designation
-    {
-        [Key]
-        public long DesignationId { get; set; }
-        public string DesignationName { get; set; } = string.Empty;
-        public string? Description { get; set; }
+    public virtual Designation Designation { get; set; } = null!;
 
-        public long DepartmentId { get; set; }
-        public long CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
-        public long? LastModifiedBy { get; set; }
-        public DateTime? LastModifiedOn { get; set; }
-        public int RecordStatus { get; set; }
+    public virtual ICollection<EmpSalaryStructure> EmpSalaryStructures { get; set; } = new List<EmpSalaryStructure>();
 
-        public Department Department { get; set; } = null!;
-    }
+    public virtual ICollection<EmployeeDonation> EmployeeDonations { get; set; } = new List<EmployeeDonation>();
 
-    public class Skill
-    {
-        [Key]
-        public long SkillId { get; set; }
-        [Required, MaxLength(50)]
-        public string SkillName { get; set; } = string.Empty;
-        [Required, MaxLength(50)]
-        public string Category { get; set; } = string.Empty;
-        public long CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
-        public long? LastModifiedBy { get; set; }
-        public DateTime? LastModifiedOn { get; set; }
-        public int RecordStatus { get; set; } = 0;
-    }
+    public virtual ICollection<EmployeeLoan> EmployeeLoans { get; set; } = new List<EmployeeLoan>();
 
+    public virtual ICollection<EmployeeProjectMapping> EmployeeProjectMappings { get; set; } = new List<EmployeeProjectMapping>();
 
-    public class EmployeeSkill
-    {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long EmployeeSkillId { get; set; }
+    public virtual ICollection<EmployeeSkill> EmployeeSkills { get; set; } = new List<EmployeeSkill>();
 
-        [Required]
-        public long EmployeeId { get; set; }
+    public virtual ICollection<EmployeeStatutoryDetail> EmployeeStatutoryDetails { get; set; } = new List<EmployeeStatutoryDetail>();
 
-        [Required]
-        public long SkillId { get; set; }
+    public virtual EmployeeType? EmployeeType { get; set; }
 
-        [Required, StringLength(50)]
-        public string ProficiencyLevel { get; set; } = string.Empty;
+    public virtual EmployeeType EmploymentTypeNavigation { get; set; } = null!;
 
-        [Required]
-        public int Certificate { get; set; }
+    public virtual ICollection<Form16> Form16s { get; set; } = new List<Form16>();
 
-        [Required]
-        public long CreatedBy { get; set; }
+    public virtual ICollection<GeneratedReport> GeneratedReports { get; set; } = new List<GeneratedReport>();
 
-        [Required]
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
+    public virtual ICollection<LeaveRequest> LeaveRequests { get; set; } = new List<LeaveRequest>();
 
-        public long? LastModifiedBy { get; set; }
-        public DateTime? LastModifiedOn { get; set; }
+    public virtual ICollection<Notification> NotificationRecipients { get; set; } = new List<Notification>();
 
-        public int RecordStatus { get; set; } = 0;
+    public virtual ICollection<Notification> NotificationSenders { get; set; } = new List<Notification>();
 
-        // Navigation Properties
-        [ForeignKey("EmployeeId")]
-        public virtual Employees Employee { get; set; } = null!;
+    public virtual ICollection<PayrollRecord> PayrollRecords { get; set; } = new List<PayrollRecord>();
 
-        [ForeignKey("SkillId")]
-        public virtual Skill Skill { get; set; } = null!;
-    }
+    public virtual ICollection<PayslipAccessLog> PayslipAccessLogs { get; set; } = new List<PayslipAccessLog>();
+
+    public virtual ICollection<PayslipNotification> PayslipNotifications { get; set; } = new List<PayslipNotification>();
+
+    public virtual ICollection<ProjectPerformance> ProjectPerformances { get; set; } = new List<ProjectPerformance>();
+
+    public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
+
+    public virtual ICollection<ReimbursementClaim> ReimbursementClaims { get; set; } = new List<ReimbursementClaim>();
+
+    public virtual ICollection<TaxDeclaration> TaxDeclarations { get; set; } = new List<TaxDeclaration>();
 }

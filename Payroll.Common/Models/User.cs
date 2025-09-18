@@ -1,36 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Payroll.Common.Models
+namespace Payroll.Common.Models;
+
+public partial class User
 {
-    public class User
-    {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int UserId { get; set; }
+    public long UserId { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string Username { get; set; } = string.Empty;
+    public string Username { get; set; } = null!;
 
-        [Required]
-        public string PasswordHash { get; set; } = string.Empty;
-        public long EmployeeId { get; set; }
-        public long RoleId { get; set; }
+    public string PasswordHash { get; set; } = null!;
 
-        [ForeignKey("RoleId")]
-        public virtual UserRole Role { get; set; } = null!;
-        public bool IsActive { get; set; } = true;
-        public DateTime? LastLogin { get; set; }
-        public long CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
-        public long? LastModifiedBy { get; set; }
-        public DateTime? LastModifiedOn { get; set; }
-        public bool RecordStatus { get; set; } = true;
-    }
+    public long EmployeeId { get; set; }
+
+    public long RoleId { get; set; }
+
+    public int? IsActive { get; set; }
+
+    public DateTime? LastLogin { get; set; }
+
+    public long CreatedBy { get; set; }
+
+    public DateTime CreatedOn { get; set; }
+
+    public long? LastModifiedBy { get; set; }
+
+    public DateTime? LastModifiedOn { get; set; }
+
+    public int RecordStatus { get; set; }
+
+    public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
+
+    public virtual UserRole Role { get; set; } = null!;
 }

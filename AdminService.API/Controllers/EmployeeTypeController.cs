@@ -15,7 +15,6 @@ namespace AdminService.API.Controllers
             _service = service;
         }
 
-        // GET: api/EmployeeType
         [HttpGet]
         public async Task<ActionResult<ApiResponse<EmployeeTypeDto>>> GetAll()
         {
@@ -36,7 +35,6 @@ namespace AdminService.API.Controllers
             return Ok(response);
         }
 
-        // GET: api/EmployeeType/5
         [HttpGet("{id:long}")]
         public async Task<ActionResult<ApiResponse<EmployeeTypeDto>>> Get(long id)
         {
@@ -64,7 +62,6 @@ namespace AdminService.API.Controllers
             return Ok(response);
         }
 
-        // POST: api/EmployeeType
         [HttpPost]
         public async Task<ActionResult<ApiResponse<EmployeeTypeDto>>> Create([FromBody] EmployeeTypeDto dto)
         {
@@ -97,7 +94,6 @@ namespace AdminService.API.Controllers
             return Ok(response);
         }
 
-        // PUT: api/EmployeeType/5
         [HttpPut("{id:long}")]
         public async Task<ActionResult<ApiResponse<EmployeeTypeDto>>> Update(long id, [FromBody] EmployeeTypeDto dto)
         {
@@ -135,7 +131,6 @@ namespace AdminService.API.Controllers
             return Ok(response);
         }
 
-        // DELETE: api/EmployeeType/5
         [HttpDelete("{id:long}")]
         public async Task<ActionResult<ApiResponse<EmployeeTypeDto>>> Delete(long id)
         {

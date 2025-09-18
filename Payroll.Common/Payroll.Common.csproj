@@ -22,4 +22,9 @@
 
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DatabaseContext\" />
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>

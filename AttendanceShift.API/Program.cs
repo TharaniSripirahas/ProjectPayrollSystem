@@ -7,6 +7,8 @@ using System.ComponentModel;
 using AttendanceShift.Core.Interfaces;
 using AttendanceShift.Infrastructure.Services;
 using Payroll.Common.Helpers;
+using AdminService.Core.Interfaces;
+using AdminService.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +21,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<PayrollDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("UserDatabase"),
-        b => b.MigrationsAssembly("Payroll.Common") 
+        b => b.MigrationsAssembly("Payroll.Common")
     )
 );
 

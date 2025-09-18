@@ -15,7 +15,7 @@ namespace AdminService.API.Controllers
             _skillService = skillService;
         }
 
-        // GET: api/Skill
+  
         [HttpGet]
         public async Task<ActionResult<ApiResponse<SkillDto>>> GetAll()
         {
@@ -44,7 +44,7 @@ namespace AdminService.API.Controllers
             return Ok(response);
         }
 
-        // GET: api/Skill/{id}
+    
         [HttpGet("{id:long}")]
         public async Task<ActionResult<ApiResponse<SkillDto>>> GetById(long id)
         {
@@ -80,7 +80,6 @@ namespace AdminService.API.Controllers
             return Ok(response);
         }
 
-        // POST: api/Skill
         [HttpPost]
         public async Task<ActionResult<ApiResponse<SkillDto>>> Create([FromBody] SkillDto dto)
         {
@@ -119,7 +118,7 @@ namespace AdminService.API.Controllers
             return Ok(response);
         }
 
-        // PUT: api/Skill/{id}
+    
         [HttpPut("{id:long}")]
         public async Task<ActionResult<ApiResponse<SkillDto>>> Update(long id, [FromBody] SkillDto dto)
         {
@@ -162,7 +161,6 @@ namespace AdminService.API.Controllers
             return Ok(response);
         }
 
-        // DELETE: api/Skill/{id}
         [HttpDelete("{id:long}")]
         public async Task<ActionResult<ApiResponse<SkillDto>>> Delete(long id)
         {
