@@ -120,11 +120,25 @@ namespace Payroll.Common.NonEntities
         public long CreatedBy { get; set; }
     }
 
-    public class EmployeeSkillDto
+    public class EmployeeSkillCreateDto
     {
         public long EmployeeSkillId { get; set; }
         public long EmployeeId { get; set; }
         public long SkillId { get; set; }
+        public string ProficiencyLevel { get; set; } = string.Empty;
+        public int Certificate { get; set; }
+        public long CreatedBy { get; set; }
+        public int RecordStatus { get; set; }
+    }
+
+
+    public class EmployeeSkillDto
+    {
+        public long EmployeeSkillId { get; set; }
+        public long EmployeeId { get; set; }
+        public string? EmployeeName { get; set; }
+        public long SkillId { get; set; }
+        public string? SkillName { get; set; }
         public string ProficiencyLevel { get; set; } = string.Empty;
         public int Certificate { get; set; }
         public long CreatedBy { get; set; }

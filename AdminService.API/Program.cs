@@ -108,6 +108,8 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+        options.JsonSerializerOptions.Converters.Add(new TimeConverter());
+
     });
 
 builder.Services.AddEndpointsApiExplorer();

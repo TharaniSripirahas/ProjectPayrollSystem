@@ -29,11 +29,13 @@ namespace Payroll.Common.NonEntities
     public class AttendanceLogDto
     {
         public long AttendanceId { get; set; }
-        public long EmployeeName { get; set; }
+        public long EmployeeId { get; set; }        
+        public string? EmployeeName { get; set; }
         public DateOnly LogDate { get; set; }
         public DateTime? PunchIn { get; set; }
         public DateTime? PunchOut { get; set; }
-        public long ShiftId { get; set; }
+        public long ShiftId { get; set; }           
+        public string? ShiftName { get; set; }
         public int? IsLate { get; set; }
         public int? LateMinutes { get; set; }
         public int? EarlyDepartureMinutes { get; set; }
@@ -42,6 +44,21 @@ namespace Payroll.Common.NonEntities
         public long? LastModifiedBy { get; set; }
         public DateTime? LastModifiedOn { get; set; }
 
+        public RecordStatus RecordStatus { get; set; }
+    }
+
+    public class AttendanceLogCreateDto
+    {
+        public long AttendanceId { get; set; }
+        public long EmployeeId { get; set; }
+        public DateOnly LogDate { get; set; }
+        public DateTime? PunchIn { get; set; }
+        public DateTime? PunchOut { get; set; }
+        public long ShiftId { get; set; }
+        public int? IsLate { get; set; }
+        public int? LateMinutes { get; set; }
+        public int? EarlyDepartureMinutes { get; set; }
+        public long? CreatedBy { get; set; }
         public RecordStatus RecordStatus { get; set; }
     }
 
@@ -59,11 +76,27 @@ namespace Payroll.Common.NonEntities
         public RecordStatus RecordStatus { get; set; }
     }
 
+    public class LeaveRequestCreateDto
+    {
+        public long EmployeeId { get; set; }
+        public long LeaveTypeId { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public decimal DaysCount { get; set; }
+        public string Reason { get; set; } = string.Empty;
+        public int Status { get; set; }
+        public long? CreatedBy { get; set; }
+        public long? LastModifiedBy { get; set; }
+        public RecordStatus RecordStatus { get; set; }
+    }
+
     public class LeaveRequestDto
     {
         public long LeaveId { get; set; }
-        public long EmployeeName { get; set; }
+        public long EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
         public long LeaveTypeId { get; set; }
+        public string LeaveTypeName { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public decimal DaysCount { get; set; }
@@ -73,7 +106,6 @@ namespace Payroll.Common.NonEntities
         public DateTime CreatedOn { get; set; }
         public long? LastModifiedBy { get; set; }
         public DateTime? LastModifiedOn { get; set; }
-
         public RecordStatus RecordStatus { get; set; }
     }
 

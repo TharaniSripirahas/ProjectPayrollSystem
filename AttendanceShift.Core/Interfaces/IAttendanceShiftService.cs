@@ -11,7 +11,7 @@ namespace AttendanceShift.Core.Interfaces
     {
         Task<ApiResult<AttendanceLogDto>> GetAllAsync();
         Task<ApiResult<AttendanceLogDto>> GetByIdAsync(long id);
-        Task<ApiResult<AttendanceLogDto>> CreateAsync(AttendanceLogDto dto);
+        Task<ApiResult<AttendanceLogDto>> CreateAsync(AttendanceLogCreateDto dto);
         Task<ApiResult<AttendanceLogDto>> UpdateAsync(long id, AttendanceLogDto dto);
         Task<ApiResult<bool>> DeleteAsync(long id);
     }

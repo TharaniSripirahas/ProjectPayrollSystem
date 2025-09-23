@@ -127,6 +127,7 @@ namespace EmployeeService.Infrastructure.Services
             emp.DesignationId = dto.DesignationId;
             emp.SkillLevel = dto.SkillLevel;
             emp.TechnologyTags = dto.TechnologyTags;
+            emp.EmployeeTypeId = dto.EmployeeTypeId;
             emp.EmploymentType = dto.EmploymentType;
             emp.JoinDate = dto.JoinDate;
             emp.ExitDate = dto.ExitDate;
@@ -184,6 +185,7 @@ namespace EmployeeService.Infrastructure.Services
                     DesignationId = dto.DesignationId,
                     SkillLevel = dto.SkillLevel,
                     TechnologyTags = dto.TechnologyTags,
+                    EmployeeTypeId = dto.EmployeeTypeId,
                     EmploymentType = dto.EmploymentType,
                     JoinDate = dto.JoinDate,
                     ExitDate = dto.ExitDate,

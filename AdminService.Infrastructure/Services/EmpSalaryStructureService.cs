@@ -6,7 +6,6 @@ using Payroll.Common.NonEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace AdminService.Infrastructure.Services
@@ -20,14 +19,19 @@ namespace AdminService.Infrastructure.Services
             _context = context;
         }
 
+        // GET ALL
         public async Task<IEnumerable<EmpSalaryStructureDto>> GetAllAsync()
         {
             return await _context.EmpSalaryStructures
+                .Include(e => e.Employee)
+                .Include(e => e.Template)
                 .Select(s => new EmpSalaryStructureDto
                 {
                     StructureId = s.StructureId,
-                    EmployeeName = s.EmployeeName,
+                    EmployeeId = s.EmployeeId,
+                    EmployeeName = s.Employee.LastName, 
                     TemplateId = s.TemplateId,
+                    TemplateName = s.Template.TemplateName,
                     BasicSalary = s.BasicSalary,
                     EffectiveFrom = s.EffectiveFrom,
                     EffectiveTo = s.EffectiveTo,
@@ -41,16 +45,23 @@ namespace AdminService.Infrastructure.Services
                 .ToListAsync();
         }
 
+        // GET BY ID
         public async Task<EmpSalaryStructureDto?> GetByIdAsync(long id)
         {
-            var s = await _context.EmpSalaryStructures.FindAsync(id);
+            var s = await _context.EmpSalaryStructures
+                .Include(e => e.Employee)
+                .Include(e => e.Template)
+                .FirstOrDefaultAsync(x => x.StructureId == id);
+
             if (s == null) return null;
 
             return new EmpSalaryStructureDto
             {
                 StructureId = s.StructureId,
-                EmployeeName = s.EmployeeName,
+                EmployeeId = s.EmployeeId,
+                EmployeeName = s.Employee.LastName,
                 TemplateId = s.TemplateId,
+                TemplateName = s.Template.TemplateName,
                 BasicSalary = s.BasicSalary,
                 EffectiveFrom = s.EffectiveFrom,
                 EffectiveTo = s.EffectiveTo,
@@ -63,11 +74,12 @@ namespace AdminService.Infrastructure.Services
             };
         }
 
+        // CREATE
         public async Task<EmpSalaryStructureDto> CreateAsync(EmpSalaryStructureDto dto)
         {
             var entity = new EmpSalaryStructure
             {
-                EmployeeName = dto.EmployeeName,
+                EmployeeId = dto.EmployeeId,
                 TemplateId = dto.TemplateId,
                 BasicSalary = dto.BasicSalary,
                 EffectiveFrom = dto.EffectiveFrom,
@@ -81,17 +93,24 @@ namespace AdminService.Infrastructure.Services
             _context.EmpSalaryStructures.Add(entity);
             await _context.SaveChangesAsync();
 
+            // Fetch names for the DTO
+            await _context.Entry(entity).Reference(e => e.Employee).LoadAsync();
+            await _context.Entry(entity).Reference(e => e.Template).LoadAsync();
+
             dto.StructureId = entity.StructureId;
+            dto.EmployeeName = entity.Employee.LastName;
+            dto.TemplateName = entity.Template.TemplateName;
             dto.CreatedOn = entity.CreatedOn;
             return dto;
         }
 
+        // UPDATE
         public async Task<EmpSalaryStructureDto?> UpdateAsync(long id, EmpSalaryStructureDto dto)
         {
             var entity = await _context.EmpSalaryStructures.FindAsync(id);
             if (entity == null) return null;
 
-            entity.EmployeeName = dto.EmployeeName;
+            entity.EmployeeId = dto.EmployeeId;
             entity.TemplateId = dto.TemplateId;
             entity.BasicSalary = dto.BasicSalary;
             entity.EffectiveFrom = dto.EffectiveFrom;
@@ -104,12 +123,19 @@ namespace AdminService.Infrastructure.Services
             _context.EmpSalaryStructures.Update(entity);
             await _context.SaveChangesAsync();
 
+            await _context.Entry(entity).Reference(e => e.Employee).LoadAsync();
+            await _context.Entry(entity).Reference(e => e.Template).LoadAsync();
+
             dto.StructureId = entity.StructureId;
+            dto.EmployeeName = entity.Employee.LastName;
+            dto.TemplateName = entity.Template.TemplateName;
             dto.CreatedOn = entity.CreatedOn;
             dto.LastModifiedOn = entity.LastModifiedOn;
+
             return dto;
         }
 
+        // DELETE
         public async Task<bool> DeleteAsync(long id)
         {
             var entity = await _context.EmpSalaryStructures.FindAsync(id);

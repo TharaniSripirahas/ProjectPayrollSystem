@@ -66,7 +66,7 @@ namespace AdminService.API.Controllers
 
         
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<LeaveRequestDto>>> Create([FromBody] LeaveRequestDto dto)
+        public async Task<ActionResult<ApiResponse<LeaveRequestDto>>> Create([FromBody] LeaveRequestCreateDto dto)
         {
             var response = new ApiResponse<LeaveRequestDto>();
 
@@ -97,9 +97,9 @@ namespace AdminService.API.Controllers
             return Ok(response);
         }
 
-   
+
         [HttpPut("{id:long}")]
-        public async Task<ActionResult<ApiResponse<LeaveRequestDto>>> Update(long id, [FromBody] LeaveRequestDto dto)
+        public async Task<ActionResult<ApiResponse<LeaveRequestDto>>> Update(long id, [FromBody] LeaveRequestCreateDto dto)
         {
             var response = new ApiResponse<LeaveRequestDto>();
 
@@ -129,11 +129,14 @@ namespace AdminService.API.Controllers
             {
                 response.ResponseCode = 0;
                 response.Message = "Error updating leave request.";
-                response.ErrorDesc = ex.Message;
+                response.ErrorDesc = ex.InnerException?.Message ?? ex.Message; 
             }
 
             return Ok(response);
         }
+
+
+
 
 
         [HttpDelete("{id:long}")]

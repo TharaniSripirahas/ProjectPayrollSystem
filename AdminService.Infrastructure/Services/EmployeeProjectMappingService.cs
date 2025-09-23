@@ -6,7 +6,6 @@ using Payroll.Common.NonEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace AdminService.Infrastructure.Services
@@ -23,11 +22,15 @@ namespace AdminService.Infrastructure.Services
         public async Task<List<EmployeeProjectMappingDto>> GetAllAsync()
         {
             return await _context.EmployeeProjectMappings
+                .Include(x => x.Employee)
+                .Include(x => x.Project)
                 .Select(x => new EmployeeProjectMappingDto
                 {
                     MappingId = x.MappingId,
                     EmployeeId = x.EmployeeId,
+                    EmployeeName = x.Employee.LastName, 
                     ProjectId = x.ProjectId,
+                    ProjectName = x.Project.ProjectName,
                     StartDate = x.StartDate,
                     EndDate = x.EndDate,
                     IsCurrent = x.IsCurrent,
@@ -39,16 +42,22 @@ namespace AdminService.Infrastructure.Services
                 }).ToListAsync();
         }
 
-        public async Task<EmployeeProjectMappingDto> GetByIdAsync(long id)
+        public async Task<EmployeeProjectMappingDto?> GetByIdAsync(long id)
         {
-            var entity = await _context.EmployeeProjectMappings.FindAsync(id);
+            var entity = await _context.EmployeeProjectMappings
+                .Include(x => x.Employee)
+                .Include(x => x.Project)
+                .FirstOrDefaultAsync(x => x.MappingId == id);
+
             if (entity == null) return null;
 
             return new EmployeeProjectMappingDto
             {
                 MappingId = entity.MappingId,
                 EmployeeId = entity.EmployeeId,
+                EmployeeName = entity.Employee.LastName,
                 ProjectId = entity.ProjectId,
+                ProjectName = entity.Project.ProjectName,
                 StartDate = entity.StartDate,
                 EndDate = entity.EndDate,
                 IsCurrent = entity.IsCurrent,
@@ -77,16 +86,34 @@ namespace AdminService.Infrastructure.Services
             _context.EmployeeProjectMappings.Add(entity);
             await _context.SaveChangesAsync();
 
+
+            await _context.Entry(entity).Reference(e => e.Employee).LoadAsync();
+            await _context.Entry(entity).Reference(e => e.Project).LoadAsync();
+
             dto.MappingId = entity.MappingId;
             dto.CreatedOn = entity.CreatedOn;
+            dto.EmployeeName = entity.Employee.LastName; 
+            dto.ProjectName = entity.Project.ProjectName; 
 
             return dto;
         }
 
-        public async Task<EmployeeProjectMappingDto> UpdateAsync(long id, EmployeeProjectMappingDto dto)
+        public async Task<EmployeeProjectMappingDto?> UpdateAsync(long id, EmployeeProjectMappingDto dto)
         {
-            var entity = await _context.EmployeeProjectMappings.FindAsync(id);
+            var entity = await _context.EmployeeProjectMappings
+                .Include(x => x.Employee)
+                .Include(x => x.Project)
+                .FirstOrDefaultAsync(x => x.MappingId == id);
+
             if (entity == null) return null;
+
+
+            if (!await _context.Employees.AnyAsync(e => e.EmployeeId == dto.EmployeeId))
+                throw new InvalidOperationException($"EmployeeId {dto.EmployeeId} does not exist.");
+
+            if (!await _context.Projects.AnyAsync(p => p.ProjectId == dto.ProjectId))
+                throw new InvalidOperationException($"ProjectId {dto.ProjectId} does not exist.");
+
 
             entity.EmployeeId = dto.EmployeeId;
             entity.ProjectId = dto.ProjectId;
@@ -98,8 +125,16 @@ namespace AdminService.Infrastructure.Services
             entity.RecordStatus = dto.RecordStatus;
 
             await _context.SaveChangesAsync();
+
+            await _context.Entry(entity).Reference(e => e.Employee).LoadAsync();
+            await _context.Entry(entity).Reference(e => e.Project).LoadAsync();
+
+            dto.EmployeeName = entity.Employee.LastName; 
+            dto.ProjectName = entity.Project.ProjectName; 
+
             return dto;
         }
+
 
         public async Task<bool> DeleteAsync(long id)
         {

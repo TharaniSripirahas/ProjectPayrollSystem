@@ -27,6 +27,7 @@ namespace ProjectBasedVariable.Infrastructure.Services
                     ProjectId = p.ProjectId,
                     ProjectName = p.ProjectName,
                     ClientName = p.ClientName,
+                    ManagerName = p.Manager.LastName,
                     StartDate = p.StartDate,
                     EndDate = p.EndDate,
                     IsActive = p.IsActive,
@@ -38,7 +39,9 @@ namespace ProjectBasedVariable.Infrastructure.Services
 
         public async Task<ProjectDto?> GetByIdAsync(long projectId)
         {
-            var project = await _context.Projects.FindAsync(projectId);
+            var project = await _context.Projects
+                .Include(p => p.Manager) // include manager
+                .FirstOrDefaultAsync(p => p.ProjectId == projectId);
 
             if (project == null) return null;
 
@@ -51,9 +54,11 @@ namespace ProjectBasedVariable.Infrastructure.Services
                 EndDate = project.EndDate,
                 IsActive = project.IsActive,
                 ManagerId = project.ManagerId,
+                ManagerName = project.Manager?.LastName, 
                 RecordStatus = project.RecordStatus
             };
         }
+
 
         public async Task<ProjectDto> CreateAsync(ProjectDto dto)
         {
@@ -65,7 +70,7 @@ namespace ProjectBasedVariable.Infrastructure.Services
                 EndDate = dto.EndDate,
                 IsActive = dto.IsActive,
                 ManagerId = dto.ManagerId,
-                CreatedBy = 1, 
+                CreatedBy = 1,
                 CreatedOn = DateTime.UtcNow,
                 RecordStatus = dto.RecordStatus
             };
@@ -73,9 +78,14 @@ namespace ProjectBasedVariable.Infrastructure.Services
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
 
+            await _context.Entry(project).Reference(p => p.Manager).LoadAsync();
+
             dto.ProjectId = project.ProjectId;
+            dto.ManagerName = project.Manager?.LastName ;
+
             return dto;
         }
+
 
         public async Task<ProjectDto?> UpdateAsync(long projectId, ProjectDto dto)
         {

@@ -11,8 +11,9 @@ namespace AdminService.Core.Interfaces
     {
         Task<List<EmployeeSkillDto>> GetAllAsync();
         Task<EmployeeSkillDto?> GetByIdAsync(long id);
-        Task<EmployeeSkillDto> CreateAsync(EmployeeSkillDto dto);
-        Task<bool> UpdateAsync(long id, EmployeeSkillDto dto);
+        Task<EmployeeSkillDto> CreateAsync(EmployeeSkillCreateDto dto);  
+        Task<EmployeeSkillDto?> UpdateAsync(long id, EmployeeSkillDto dto);
         Task<bool> DeleteAsync(long id);
     }
+
 }

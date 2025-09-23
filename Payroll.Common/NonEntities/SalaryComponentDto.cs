@@ -27,6 +27,8 @@ namespace Payroll.Common.NonEntities
         public long TemplateId { get; set; }
         public string TemplateName { get; set; } = string.Empty;
         public long EmployeeTypeId { get; set; }
+        public string EmployeeTypeName { get; set; } = string.Empty; 
+
         public string? Description { get; set; }
         public long CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
@@ -39,7 +41,9 @@ namespace Payroll.Common.NonEntities
     {
         public long TemplateComponentId { get; set; }
         public long TemplateId { get; set; }
+        public string? TemplateName { get; set; }
         public long ComponentId { get; set; }
+        public string? ComponentName { get; set; }
         public long CalculationType { get; set; }
         public decimal? Value { get; set; }
         public decimal? MaxLimit { get; set; }
@@ -53,8 +57,13 @@ namespace Payroll.Common.NonEntities
     public class EmpSalaryStructureDto
     {
         public long StructureId { get; set; }
-        public long EmployeeName { get; set; }
+
+        public long EmployeeId { get; set; }        // FK
+        public string EmployeeName { get; set; } = null!; 
+
         public long TemplateId { get; set; }
+        public string? TemplateName { get; set; }   
+
         public decimal BasicSalary { get; set; }
         public DateTime EffectiveFrom { get; set; }
         public DateTime? EffectiveTo { get; set; }
@@ -65,4 +74,5 @@ namespace Payroll.Common.NonEntities
         public DateTime? LastModifiedOn { get; set; }
         public int RecordStatus { get; set; }
     }
+
 }

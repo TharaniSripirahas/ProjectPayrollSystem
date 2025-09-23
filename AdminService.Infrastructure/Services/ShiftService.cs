@@ -79,7 +79,9 @@ namespace AdminService.Infrastructure.Services
                     AllowancePercentage = dto.AllowancePercentage,
                     CreatedBy = dto.CreatedBy ?? 0,
                     CreatedOn = DateTime.UtcNow,
-                    RecordStatus = (int)dto.RecordStatus
+                    RecordStatus = (int)dto.RecordStatus,
+                    LastModifiedBy = dto.LastModifiedBy,
+                    LastModifiedOn = DateTime.UtcNow
                 };
 
                 _context.Shifts.Add(entity);

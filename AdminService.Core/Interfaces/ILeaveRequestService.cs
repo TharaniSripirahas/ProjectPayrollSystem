@@ -11,8 +11,8 @@ namespace AdminService.Core.Interfaces
     {
         Task<List<LeaveRequestDto>> GetAllAsync();
         Task<LeaveRequestDto?> GetByIdAsync(long id);
-        Task<LeaveRequestDto> CreateAsync(LeaveRequestDto dto);
-        Task<LeaveRequestDto?> UpdateAsync(long id, LeaveRequestDto dto);
+        Task<LeaveRequestDto> CreateAsync(LeaveRequestCreateDto dto);
+        Task<LeaveRequestDto?> UpdateAsync(long id, LeaveRequestCreateDto dto);
         Task<bool> DeleteAsync(long id);
     }
 }

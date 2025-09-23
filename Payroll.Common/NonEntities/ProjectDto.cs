@@ -10,6 +10,7 @@ namespace Payroll.Common.NonEntities
     {
         public long ProjectId { get; set; }
         public string ProjectName { get; set; } = null!;
+        public string? ManagerName { get; set; }
         public string ClientName { get; set; } = null!;
         public DateOnly? StartDate { get; set; }
         public DateOnly? EndDate { get; set; }
@@ -22,6 +23,8 @@ namespace Payroll.Common.NonEntities
     {
         public long MappingId { get; set; }
         public long EmployeeId { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? ProjectName { get; set; }
         public long ProjectId { get; set; }
         public DateOnly StartDate { get; set; }
         public DateOnly EndDate { get; set; }
@@ -51,8 +54,11 @@ namespace Payroll.Common.NonEntities
     {
         public long PerformanceId { get; set; }
         public long EmployeeId { get; set; }
+        public string? EmployeeName { get; set; }
         public long ProjectId { get; set; }
+        public string? ProjectName { get; set; }
         public long MetricId { get; set; }
+        public string? MetricName { get; set; }
         public DateOnly PeriodStart { get; set; }
         public DateOnly PeriodEnd { get; set; }
         public decimal AchievedValue { get; set; }

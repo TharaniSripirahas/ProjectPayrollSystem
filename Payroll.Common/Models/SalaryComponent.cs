@@ -27,7 +27,6 @@ public partial class SalaryComponent
 
     public int RecordStatus { get; set; }
 
-    public virtual ICollection<TemplateComponent> TemplateComponentComponents { get; set; } = new List<TemplateComponent>();
-
-    public virtual ICollection<TemplateComponent> TemplateComponentSalaryComponentModelComponents { get; set; } = new List<TemplateComponent>();
+    public virtual ICollection<TemplateComponent> TemplateComponentsByComponent { get; set; } = new List<TemplateComponent>();
+    public virtual ICollection<TemplateComponent> TemplateComponentsByModelComponent { get; set; } = new List<TemplateComponent>();
 }

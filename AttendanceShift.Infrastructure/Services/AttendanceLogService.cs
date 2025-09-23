@@ -29,14 +29,18 @@ namespace AttendanceShift.Infrastructure.Services
             try
             {
                 var logs = await _context.AttendanceLogs
+                    .Include(x => x.Employee)
+                    .Include(x => x.Shift)
                     .Select(x => new AttendanceLogDto
                     {
                         AttendanceId = x.AttendanceId,
-                        EmployeeName = x.EmployeeName,
+                        EmployeeId = x.EmployeeId,
+                        EmployeeName = x.Employee.FirstName + " " + x.Employee.LastName,
                         LogDate = x.LogDate,
                         PunchIn = x.PunchIn,
                         PunchOut = x.PunchOut,
                         ShiftId = x.ShiftId,
+                        ShiftName = x.Shift.ShiftName,
                         IsLate = x.IsLate,
                         LateMinutes = x.LateMinutes,
                         EarlyDepartureMinutes = x.EarlyDepartureMinutes,
@@ -66,7 +70,11 @@ namespace AttendanceShift.Infrastructure.Services
         {
             var result = new ApiResult<AttendanceLogDto>();
 
-            var log = await _context.AttendanceLogs.FindAsync(id);
+            var log = await _context.AttendanceLogs
+                .Include(x => x.Employee)
+                .Include(x => x.Shift)
+                .FirstOrDefaultAsync(x => x.AttendanceId == id);
+
             if (log == null)
             {
                 result.ResponseCode = 0;
@@ -77,11 +85,13 @@ namespace AttendanceShift.Infrastructure.Services
             var dto = new AttendanceLogDto
             {
                 AttendanceId = log.AttendanceId,
-                EmployeeName = log.EmployeeName,
+                EmployeeId = log.EmployeeId,
+                EmployeeName = log.Employee.FirstName + " " + log.Employee.LastName,
                 LogDate = log.LogDate,
                 PunchIn = log.PunchIn,
                 PunchOut = log.PunchOut,
                 ShiftId = log.ShiftId,
+                ShiftName = log.Shift.ShiftName,
                 IsLate = log.IsLate,
                 LateMinutes = log.LateMinutes,
                 EarlyDepartureMinutes = log.EarlyDepartureMinutes,
@@ -99,7 +109,7 @@ namespace AttendanceShift.Infrastructure.Services
             return result;
         }
 
-        public async Task<ApiResult<AttendanceLogDto>> CreateAsync(AttendanceLogDto dto)
+        public async Task<ApiResult<AttendanceLogDto>> CreateAsync(AttendanceLogCreateDto dto)
         {
             var result = new ApiResult<AttendanceLogDto>();
 
@@ -107,7 +117,7 @@ namespace AttendanceShift.Infrastructure.Services
             {
                 var log = new AttendanceLog
                 {
-                    EmployeeName = dto.EmployeeName,
+                    EmployeeId = dto.EmployeeId,
                     LogDate = dto.LogDate,
                     PunchIn = dto.PunchIn,
                     PunchOut = dto.PunchOut,
@@ -123,22 +133,43 @@ namespace AttendanceShift.Infrastructure.Services
                 _context.AttendanceLogs.Add(log);
                 await _context.SaveChangesAsync();
 
-                dto.AttendanceId = log.AttendanceId;
-                dto.CreatedOn = log.CreatedOn;
+                await _context.Entry(log).Reference(x => x.Employee).LoadAsync();
+                await _context.Entry(log).Reference(x => x.Shift).LoadAsync();
+
+                var createdDto = new AttendanceLogDto
+                {
+                    AttendanceId = log.AttendanceId,
+                    EmployeeId = log.EmployeeId,
+                    EmployeeName = log.Employee.FirstName + " " + log.Employee.LastName,
+                    LogDate = log.LogDate,
+                    PunchIn = log.PunchIn,
+                    PunchOut = log.PunchOut,
+                    ShiftId = log.ShiftId,
+                    ShiftName = log.Shift.ShiftName,
+                    IsLate = log.IsLate,
+                    LateMinutes = log.LateMinutes,
+                    EarlyDepartureMinutes = log.EarlyDepartureMinutes,
+                    CreatedBy = log.CreatedBy,
+                    CreatedOn = log.CreatedOn,
+                    LastModifiedBy = log.LastModifiedBy,
+                    LastModifiedOn = log.LastModifiedOn,
+                    RecordStatus = (RecordStatus)log.RecordStatus
+                };
 
                 result.ResponseCode = 1;
                 result.Message = "Attendance log created successfully";
-                result.ResponseData.Add(dto);
+                result.ResponseData.Add(createdDto);
             }
             catch (Exception ex)
             {
                 result.ResponseCode = 0;
                 result.Message = "Error occurred while creating attendance log";
-                result.ErrorDesc = ex.Message;
+                result.ErrorDesc = ex.InnerException?.Message ?? ex.Message;
             }
 
             return result;
         }
+
 
         public async Task<ApiResult<AttendanceLogDto>> UpdateAsync(long id, AttendanceLogDto dto)
         {
@@ -210,4 +241,5 @@ namespace AttendanceShift.Infrastructure.Services
             return result;
         }
     }
+
 }

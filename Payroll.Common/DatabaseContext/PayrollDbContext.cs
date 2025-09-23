@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
 using Payroll.Common.Models;
 
@@ -106,6 +107,7 @@ public partial class PayrollDbContext : DbContext
 
     public virtual DbSet<UserRole> UserRoles { get; set; }
 
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=genlkhrms;Username=postgres;Password=tharani@01");
@@ -162,14 +164,20 @@ public partial class PayrollDbContext : DbContext
         {
             entity.HasKey(e => e.AttendanceId);
 
-            entity.HasIndex(e => e.EmployeeName, "IX_AttendanceLogs_EmployeeName");
+            entity.HasIndex(e => e.EmployeeId).HasDatabaseName("IX_AttendanceLogs_EmployeeId");
+            entity.HasIndex(e => e.ShiftId).HasDatabaseName("IX_AttendanceLogs_ShiftId");
 
-            entity.HasIndex(e => e.ShiftId, "IX_AttendanceLogs_ShiftId");
+            entity.HasOne(d => d.Employee)
+                  .WithMany(p => p.AttendanceLogs)
+                  .HasForeignKey(d => d.EmployeeId)
+                  .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(d => d.EmployeeNameNavigation).WithMany(p => p.AttendanceLogs).HasForeignKey(d => d.EmployeeName);
-
-            entity.HasOne(d => d.Shift).WithMany(p => p.AttendanceLogs).HasForeignKey(d => d.ShiftId);
+            entity.HasOne(d => d.Shift)
+                  .WithMany(p => p.AttendanceLogs)
+                  .HasForeignKey(d => d.ShiftId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
+
 
         modelBuilder.Entity<AuditLog>(entity =>
         {
@@ -206,18 +214,20 @@ public partial class PayrollDbContext : DbContext
 
             entity.ToTable("EmpSalaryStructure");
 
-            entity.HasIndex(e => e.EmployeeName, "IX_EmpSalaryStructure_EmployeeName");
+            entity.HasIndex(e => e.EmployeeId).HasDatabaseName("IX_EmpSalaryStructure_EmployeeId");
+            entity.HasIndex(e => e.TemplateId).HasDatabaseName("IX_EmpSalaryStructure_TemplateId");
 
-            entity.HasIndex(e => e.SalaryTemplateTemplateId, "IX_EmpSalaryStructure_SalaryTemplateTemplateId");
+            entity.HasOne(d => d.Employee)
+                  .WithMany(p => p.EmpSalaryStructures)
+                  .HasForeignKey(d => d.EmployeeId)
+                  .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasIndex(e => e.TemplateId, "IX_EmpSalaryStructure_TemplateId");
-
-            entity.HasOne(d => d.EmployeeNameNavigation).WithMany(p => p.EmpSalaryStructures).HasForeignKey(d => d.EmployeeName);
-
-            entity.HasOne(d => d.SalaryTemplateTemplate).WithMany(p => p.EmpSalaryStructureSalaryTemplateTemplates).HasForeignKey(d => d.SalaryTemplateTemplateId);
-
-            entity.HasOne(d => d.Template).WithMany(p => p.EmpSalaryStructureTemplates).HasForeignKey(d => d.TemplateId);
+            entity.HasOne(d => d.Template)
+                  .WithMany(p => p.EmpSalaryStructureTemplates)
+                  .HasForeignKey(d => d.TemplateId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
+
 
         modelBuilder.Entity<Employee>(entity =>
         {
@@ -365,14 +375,22 @@ public partial class PayrollDbContext : DbContext
         {
             entity.HasKey(e => e.LeaveId);
 
-            entity.HasIndex(e => e.EmployeeName, "IX_LeaveRequests_EmployeeName");
+            entity.HasIndex(e => e.EmployeeId);
+            entity.HasIndex(e => e.LeaveTypeId);
 
-            entity.HasIndex(e => e.LeaveTypeId, "IX_LeaveRequests_LeaveTypeId");
+            entity.HasOne(d => d.Employee)
+                  .WithMany(p => p.LeaveRequests)
+                  .HasForeignKey(d => d.EmployeeId)
+                  .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(d => d.EmployeeNameNavigation).WithMany(p => p.LeaveRequests).HasForeignKey(d => d.EmployeeName);
-
-            entity.HasOne(d => d.LeaveType).WithMany(p => p.LeaveRequests).HasForeignKey(d => d.LeaveTypeId);
+            entity.HasOne(d => d.LeaveType)
+                  .WithMany(p => p.LeaveRequests)
+                  .HasForeignKey(d => d.LeaveTypeId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
+
+
+
 
         modelBuilder.Entity<LoanRepayment>(entity =>
         {
@@ -591,20 +609,32 @@ public partial class PayrollDbContext : DbContext
         {
             entity.ToTable("TemplateComponent");
 
+            entity.HasKey(e => e.TemplateComponentId);
+
             entity.HasIndex(e => e.ComponentId, "IX_TemplateComponent_ComponentId");
-
             entity.HasIndex(e => e.SalaryComponentModelComponentId, "IX_TemplateComponent_SalaryComponentModelComponentId");
-
             entity.HasIndex(e => e.TemplateId, "IX_TemplateComponent_TemplateId");
 
-            entity.HasOne(d => d.Component).WithMany(p => p.TemplateComponentComponents).HasForeignKey(d => d.ComponentId);
+            entity.HasOne(d => d.Component)
+                .WithMany(p => p.TemplateComponentsByComponent)
+                .HasForeignKey(d => d.ComponentId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_TemplateComponent_SalaryComponent_ComponentId");
 
-            entity.HasOne(d => d.SalaryComponentModelComponent).WithMany(p => p.TemplateComponentSalaryComponentModelComponents)
+            entity.HasOne(d => d.SalaryComponentModelComponent)
+                .WithMany(p => p.TemplateComponentsByModelComponent)
                 .HasForeignKey(d => d.SalaryComponentModelComponentId)
                 .HasConstraintName("FK_TemplateComponent_SalaryComponent_SalaryComponentModelCompo~");
 
-            entity.HasOne(d => d.Template).WithMany(p => p.TemplateComponents).HasForeignKey(d => d.TemplateId);
+            entity.HasOne(d => d.Template)
+                .WithMany(p => p.TemplateComponents)
+                .HasForeignKey(d => d.TemplateId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_TemplateComponent_SalaryTemplate_TemplateId");
         });
+
+
+
 
         modelBuilder.Entity<User>(entity =>
         {

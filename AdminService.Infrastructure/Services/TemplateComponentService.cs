@@ -23,11 +23,15 @@ namespace AdminService.Infrastructure.Services
         public async Task<IEnumerable<TemplateComponentDto>> GetAllAsync()
         {
             return await _context.TemplateComponents
+                .Include(tc => tc.Template)   
+                .Include(tc => tc.Component)  
                 .Select(tc => new TemplateComponentDto
                 {
                     TemplateComponentId = tc.TemplateComponentId,
                     TemplateId = tc.TemplateId,
+                    TemplateName = tc.Template.TemplateName,   
                     ComponentId = tc.ComponentId,
+                    ComponentName = tc.Component.ComponentName, 
                     CalculationType = tc.CalculationType,
                     Value = tc.Value,
                     MaxLimit = tc.MaxLimit,
@@ -40,16 +44,23 @@ namespace AdminService.Infrastructure.Services
                 .ToListAsync();
         }
 
+
         public async Task<TemplateComponentDto?> GetByIdAsync(long id)
         {
-            var tc = await _context.TemplateComponents.FindAsync(id);
+            var tc = await _context.TemplateComponents
+                .Include(t => t.Template)
+                .Include(c => c.Component)
+                .FirstOrDefaultAsync(x => x.TemplateComponentId == id);
+
             if (tc == null) return null;
 
             return new TemplateComponentDto
             {
                 TemplateComponentId = tc.TemplateComponentId,
                 TemplateId = tc.TemplateId,
+                TemplateName = tc.Template.TemplateName,
                 ComponentId = tc.ComponentId,
+                ComponentName = tc.Component.ComponentName,
                 CalculationType = tc.CalculationType,
                 Value = tc.Value,
                 MaxLimit = tc.MaxLimit,
@@ -60,6 +71,7 @@ namespace AdminService.Infrastructure.Services
                 RecordStatus = tc.RecordStatus
             };
         }
+
 
         public async Task<TemplateComponentDto> CreateAsync(TemplateComponentDto dto)
         {
@@ -78,15 +90,46 @@ namespace AdminService.Infrastructure.Services
             _context.TemplateComponents.Add(entity);
             await _context.SaveChangesAsync();
 
-            dto.TemplateComponentId = entity.TemplateComponentId;
-            dto.CreatedOn = entity.CreatedOn;
-            return dto;
+            await _context.Entry(entity).Reference(e => e.Template).LoadAsync();
+            await _context.Entry(entity).Reference(e => e.Component).LoadAsync();
+
+            return new TemplateComponentDto
+            {
+                TemplateComponentId = entity.TemplateComponentId,
+                TemplateId = entity.TemplateId,
+                TemplateName = entity.Template.TemplateName,        
+                ComponentId = entity.ComponentId,
+                ComponentName = entity.Component.ComponentName, 
+                CalculationType = entity.CalculationType,
+                Value = entity.Value,
+                MaxLimit = entity.MaxLimit,
+                CreatedBy = entity.CreatedBy,
+                CreatedOn = entity.CreatedOn,
+                LastModifiedBy = entity.LastModifiedBy,
+                LastModifiedOn = entity.LastModifiedOn,
+                RecordStatus = entity.RecordStatus
+            };
         }
+
 
         public async Task<TemplateComponentDto?> UpdateAsync(long id, TemplateComponentDto dto)
         {
-            var entity = await _context.TemplateComponents.FindAsync(id);
+            var entity = await _context.TemplateComponents
+                .Include(tc => tc.Template)
+                .Include(tc => tc.Component)
+                .FirstOrDefaultAsync(tc => tc.TemplateComponentId == id);
+
             if (entity == null) return null;
+
+            var templateExists = await _context.SalaryTemplates
+                .AnyAsync(t => t.TemplateId == dto.TemplateId);
+            if (!templateExists)
+                throw new InvalidOperationException($"TemplateId {dto.TemplateId} does not exist.");
+
+            var componentExists = await _context.SalaryComponents
+                .AnyAsync(c => c.ComponentId == dto.ComponentId);
+            if (!componentExists)
+                throw new InvalidOperationException($"ComponentId {dto.ComponentId} does not exist.");
 
             entity.TemplateId = dto.TemplateId;
             entity.ComponentId = dto.ComponentId;
@@ -97,13 +140,27 @@ namespace AdminService.Infrastructure.Services
             entity.LastModifiedOn = DateTime.UtcNow;
             entity.RecordStatus = dto.RecordStatus;
 
-            _context.TemplateComponents.Update(entity);
             await _context.SaveChangesAsync();
 
-            dto.TemplateComponentId = entity.TemplateComponentId;
-            dto.CreatedOn = entity.CreatedOn;
-            dto.LastModifiedOn = entity.LastModifiedOn;
-            return dto;
+            await _context.Entry(entity).Reference(e => e.Template).LoadAsync();
+            await _context.Entry(entity).Reference(e => e.Component).LoadAsync();
+
+            return new TemplateComponentDto
+            {
+                TemplateComponentId = entity.TemplateComponentId,
+                TemplateId = entity.TemplateId,
+                TemplateName = entity.Template?.TemplateName,
+                ComponentId = entity.ComponentId,
+                ComponentName = entity.Component?.ComponentName,
+                CalculationType = entity.CalculationType,
+                Value = entity.Value,
+                MaxLimit = entity.MaxLimit,
+                CreatedBy = entity.CreatedBy,
+                CreatedOn = entity.CreatedOn,
+                LastModifiedBy = entity.LastModifiedBy,
+                LastModifiedOn = entity.LastModifiedOn,
+                RecordStatus = entity.RecordStatus
+            };
         }
 
         public async Task<bool> DeleteAsync(long id)

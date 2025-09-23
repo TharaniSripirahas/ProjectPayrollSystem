@@ -15,7 +15,6 @@ namespace AdminService.API.Controllers
             _employeeSkillService = employeeSkillService;
         }
 
-      
         [HttpGet]
         public async Task<ActionResult<ApiResponse<EmployeeSkillDto>>> GetAll()
         {
@@ -48,7 +47,7 @@ namespace AdminService.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<EmployeeSkillDto>>> Create([FromBody] EmployeeSkillDto dto)
+        public async Task<ActionResult<ApiResponse<EmployeeSkillDto>>> Create([FromBody] EmployeeSkillCreateDto dto)
         {
             var response = new ApiResponse<EmployeeSkillDto>();
 
@@ -79,7 +78,6 @@ namespace AdminService.API.Controllers
             return Ok(response);
         }
 
-        
         [HttpPut("{id:long}")]
         public async Task<ActionResult<ApiResponse<EmployeeSkillDto>>> Update(long id, [FromBody] EmployeeSkillDto dto)
         {
@@ -95,7 +93,7 @@ namespace AdminService.API.Controllers
             try
             {
                 var updated = await _employeeSkillService.UpdateAsync(id, dto);
-                if (!updated)
+                if (updated == null)
                 {
                     response.ResponseCode = 0;
                     response.Message = "Employee skill not found.";
@@ -104,7 +102,7 @@ namespace AdminService.API.Controllers
 
                 response.ResponseCode = 1;
                 response.Message = "Employee skill updated successfully.";
-                response.ResponseData.Add(dto);
+                response.ResponseData.Add(updated);
             }
             catch (Exception ex)
             {
@@ -116,7 +114,6 @@ namespace AdminService.API.Controllers
             return Ok(response);
         }
 
-      
         [HttpDelete("{id:long}")]
         public async Task<ActionResult<ApiResponse<EmployeeSkillDto>>> Delete(long id)
         {

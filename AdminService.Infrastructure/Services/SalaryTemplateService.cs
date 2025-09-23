@@ -28,6 +28,7 @@ namespace AdminService.Infrastructure.Services
                     TemplateId = t.TemplateId,
                     TemplateName = t.TemplateName,
                     Description = t.Description,
+                    EmployeeTypeName = t.EmployeeType.TypeName,
                     CreatedBy = t.CreatedBy,
                     CreatedOn = t.CreatedOn,
                     LastModifiedBy = t.LastModifiedBy,
@@ -39,13 +40,18 @@ namespace AdminService.Infrastructure.Services
 
         public async Task<SalaryTemplateDto?> GetByIdAsync(long id)
         {
-            var t = await _context.SalaryTemplates.FindAsync(id);
+            var t = await _context.SalaryTemplates
+             .Include(t => t.EmployeeType)
+             .FirstOrDefaultAsync(x => x.TemplateId == id);
+
             if (t == null) return null;
 
             return new SalaryTemplateDto
             {
                 TemplateId = t.TemplateId,
                 TemplateName = t.TemplateName,
+                EmployeeTypeId = t.EmployeeTypeId,
+                EmployeeTypeName = t.EmployeeType.TypeName,
                 Description = t.Description,
                 CreatedBy = t.CreatedBy,
                 CreatedOn = t.CreatedOn,
@@ -53,11 +59,11 @@ namespace AdminService.Infrastructure.Services
                 LastModifiedOn = t.LastModifiedOn,
                 RecordStatus = t.RecordStatus
             };
+
         }
 
         public async Task<SalaryTemplateDto> CreateAsync(SalaryTemplateDto dto)
         {
-            // Check if EmployeeType exists
             var employeeTypeExists = await _context.EmployeeTypes.AnyAsync(e => e.EmployeeTypeId == dto.EmployeeTypeId);
             if (!employeeTypeExists)
                 throw new Exception($"EmployeeTypeId {dto.EmployeeTypeId} does not exist.");

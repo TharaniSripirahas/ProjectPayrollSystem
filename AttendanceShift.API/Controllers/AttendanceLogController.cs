@@ -35,7 +35,7 @@ namespace AttendanceShift.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResult<AttendanceLogDto>>> Create([FromBody] AttendanceLogDto dto)
+        public async Task<ActionResult<ApiResult<AttendanceLogDto>>> Create([FromBody] AttendanceLogCreateDto dto)
         {
             if (!ModelState.IsValid)
             {
