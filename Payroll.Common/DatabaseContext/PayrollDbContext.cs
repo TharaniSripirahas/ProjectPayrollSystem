@@ -467,12 +467,15 @@ public partial class PayrollDbContext : DbContext
             entity.HasKey(e => e.NotificationId);
 
             entity.HasIndex(e => e.EmployeeId, "IX_PayslipNotifications_EmployeeId");
-
             entity.HasIndex(e => e.PayrollCycleId, "IX_PayslipNotifications_PayrollCycleId");
 
-            entity.HasOne(d => d.Employee).WithMany(p => p.PayslipNotifications).HasForeignKey(d => d.EmployeeId);
+            entity.HasOne(d => d.Employee)
+                .WithMany(p => p.PayslipNotifications)
+                .HasForeignKey(d => d.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(d => d.PayrollCycle).WithMany(p => p.PayslipNotifications)
+            entity.HasOne(d => d.PayrollCycle)
+                .WithMany(p => p.PayslipNotifications) 
                 .HasForeignKey(d => d.PayrollCycleId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
@@ -540,21 +543,32 @@ public partial class PayrollDbContext : DbContext
             entity.HasKey(e => e.ClaimId);
 
             entity.HasIndex(e => e.EmployeeId, "IX_ReimbursementClaims_EmployeeId");
-
             entity.HasIndex(e => e.PayrollCycleId, "IX_ReimbursementClaims_PayrollCycleId");
-
             entity.HasIndex(e => e.TypeId, "IX_ReimbursementClaims_TypeId");
 
-            entity.HasOne(d => d.Employee).WithMany(p => p.ReimbursementClaims).HasForeignKey(d => d.EmployeeId);
+            entity.HasOne(d => d.Employee)
+                .WithMany(p => p.ReimbursementClaims)
+                .HasForeignKey(d => d.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(d => d.PayrollCycle).WithMany(p => p.ReimbursementClaims)
+            entity.HasOne(d => d.PayrollCycle)
+                .WithMany(p => p.ReimbursementClaims)   
                 .HasForeignKey(d => d.PayrollCycleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(d => d.Type).WithMany(p => p.ReimbursementClaims)
+            entity.HasOne(d => d.Type)
+                .WithMany(p => p.ReimbursementClaims)
                 .HasForeignKey(d => d.TypeId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+
+        modelBuilder.Entity<PayrollCycle>(entity =>
+        {
+            entity.Property(e => e.StartDate).HasColumnType("date");
+            entity.Property(e => e.EndDate).HasColumnType("date");
+            entity.Property(e => e.PaymentDate).HasColumnType("date");
+        });
+
 
         modelBuilder.Entity<ReimbursementType>(entity =>
         {

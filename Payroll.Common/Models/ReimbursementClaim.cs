@@ -21,7 +21,7 @@ public partial class ReimbursementClaim
 
     public DateTime? ApprovedAt { get; set; }
 
-    public long? PayrollCycleId { get; set; }
+    public long? PayrollCycleId { get; set; } //FK
 
     public long CreatedBy { get; set; }
 

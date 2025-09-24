@@ -15,6 +15,7 @@ namespace AdminService.Infrastructure.Services
             _context = context;
         }
 
+        // Get all payroll components
         public async Task<IEnumerable<PayrollComponentDto>> GetAllAsync()
         {
             return await _context.PayrollComponents
@@ -22,6 +23,7 @@ namespace AdminService.Infrastructure.Services
                     .ThenInclude(r => r.PayrollCycle)
                 .Include(c => c.Record)
                     .ThenInclude(r => r.Employee)
+                .Include(c => c.Component) 
                 .Select(c => new PayrollComponentDto
                 {
                     PayrollComponentId = c.PayrollComponentId,
@@ -30,12 +32,15 @@ namespace AdminService.Infrastructure.Services
                     Amount = c.Amount,
                     IsEarning = c.IsEarning,
                     RecordStatus = c.RecordStatus,
-                    PayrollCycleName = c.Record!.PayrollCycle != null ? c.Record.PayrollCycle.PayrollCycleName : null,
-                    EmployeeName = c.Record!.Employee != null ? c.Record.Employee.FirstName + " " + c.Record.Employee.LastName : null
+                    PayrollCycleName = c.Record.PayrollCycle != null ? c.Record.PayrollCycle.PayrollCycleName : null,
+                    EmployeeName = c.Record.Employee != null ? c.Record.Employee.FirstName + " " + c.Record.Employee.LastName : null,
+                    ComponentName = c.Component != null ? c.Component.ComponentName : null
+
                 })
                 .ToListAsync();
         }
 
+        // Get a payroll component by Id
         public async Task<PayrollComponentDto?> GetByIdAsync(long payrollComponentId)
         {
             var component = await _context.PayrollComponents
@@ -43,6 +48,7 @@ namespace AdminService.Infrastructure.Services
                     .ThenInclude(r => r.PayrollCycle)
                 .Include(c => c.Record)
                     .ThenInclude(r => r.Employee)
+                .Include(c => c.Component)
                 .FirstOrDefaultAsync(c => c.PayrollComponentId == payrollComponentId);
 
             if (component == null) return null;
@@ -58,10 +64,12 @@ namespace AdminService.Infrastructure.Services
                 PayrollCycleName = component.Record?.PayrollCycle?.PayrollCycleName,
                 EmployeeName = component.Record?.Employee != null
                     ? component.Record.Employee.FirstName + " " + component.Record.Employee.LastName
-                    : null
+                    : null,
+                ComponentName = component.Component?.ComponentName
             };
         }
 
+        // Create new payroll component
         public async Task<PayrollComponentDto> CreateAsync(CreatePayrollComponentDto dto)
         {
             var component = new PayrollComponent
@@ -70,7 +78,7 @@ namespace AdminService.Infrastructure.Services
                 ComponentId = dto.ComponentId,
                 Amount = dto.Amount,
                 IsEarning = dto.IsEarning,
-                CreatedBy = 1, // TODO: logged-in user
+                CreatedBy = 1, 
                 CreatedOn = DateTime.UtcNow,
                 RecordStatus = 1
             };
@@ -82,6 +90,7 @@ namespace AdminService.Infrastructure.Services
                    ?? throw new Exception("Error retrieving created PayrollComponent");
         }
 
+        // Update payroll component
         public async Task<PayrollComponentDto?> UpdateAsync(long payrollComponentId, UpdatePayrollComponentDto dto)
         {
             var component = await _context.PayrollComponents.FindAsync(payrollComponentId);
@@ -92,7 +101,7 @@ namespace AdminService.Infrastructure.Services
             component.Amount = dto.Amount;
             component.IsEarning = dto.IsEarning;
             component.RecordStatus = dto.RecordStatus;
-            component.LastModifiedBy = 1; // TODO: logged-in user
+            component.LastModifiedBy = 1; 
             component.LastModifiedOn = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -100,17 +109,14 @@ namespace AdminService.Infrastructure.Services
             return await GetByIdAsync(component.PayrollComponentId);
         }
 
+        // delete payroll component
         public async Task<bool> DeleteAsync(long payrollComponentId)
         {
             var component = await _context.PayrollComponents.FindAsync(payrollComponentId);
             if (component == null) return false;
 
-            // ❌ Hard delete
-            // _context.PayrollComponents.Remove(component);
-
-            // ✅ Soft delete
-            component.RecordStatus = 0;
-            component.LastModifiedBy = 1; // TODO: logged-in user
+            component.RecordStatus = 0; 
+            component.LastModifiedBy = 1; 
             component.LastModifiedOn = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();

@@ -26,4 +26,5 @@ public partial class PayrollComponent
     public int RecordStatus { get; set; }
 
     public virtual PayrollRecord Record { get; set; } = null!;
+    public virtual SalaryComponent Component { get; set; } = null!;
 }

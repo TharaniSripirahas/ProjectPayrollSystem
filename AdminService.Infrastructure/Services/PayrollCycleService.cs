@@ -31,9 +31,9 @@ namespace AdminService.Infrastructure.Services
                     EndDate = p.EndDate,
                     PaymentDate = p.PaymentDate,
                     ProcessedAt = p.ProcessedAt,
-                    PayrollRecordsCount = p.PayrollRecords.Count,
-                    ReimbursementClaimsCount = p.ReimbursementClaims.Count,
-                    PayslipNotificationsCount = p.PayslipNotifications.Count
+                    PayrollRecordsCount = _context.PayrollRecords.Count(r => r.PayrollCycleId == p.PayrollCycleId),
+                    ReimbursementClaimsCount = _context.ReimbursementClaims.Count(r => r.PayrollCycleId == p.PayrollCycleId),
+                    PayslipNotificationsCount = _context.PayslipNotifications.Count(n => n.PayrollCycleId == p.PayrollCycleId)
                 })
                 .ToListAsync();
         }
@@ -41,26 +41,23 @@ namespace AdminService.Infrastructure.Services
         public async Task<PayrollCycleDto?> GetByIdAsync(long payrollCycleId)
         {
             var cycle = await _context.PayrollCycles
-                .Include(p => p.PayrollRecords)
-                .Include(p => p.ReimbursementClaims)
-                .Include(p => p.PayslipNotifications)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.PayrollCycleId == payrollCycleId);
+                .Where(p => p.PayrollCycleId == payrollCycleId)
+                .Select(p => new PayrollCycleDto
+                {
+                    PayrollCycleId = p.PayrollCycleId,
+                    PayrollCycleName = p.PayrollCycleName,
+                    StartDate = p.StartDate,
+                    EndDate = p.EndDate,
+                    PaymentDate = p.PaymentDate,
+                    ProcessedAt = p.ProcessedAt,
+                    PayrollRecordsCount = _context.PayrollRecords.Count(r => r.PayrollCycleId == p.PayrollCycleId),
+                    ReimbursementClaimsCount = _context.ReimbursementClaims.Count(r => r.PayrollCycleId == p.PayrollCycleId),
+                    PayslipNotificationsCount = _context.PayslipNotifications.Count(n => n.PayrollCycleId == p.PayrollCycleId)
+                })
+                .FirstOrDefaultAsync();
 
-            if (cycle == null) return null;
-
-            return new PayrollCycleDto
-            {
-                PayrollCycleId = cycle.PayrollCycleId,
-                PayrollCycleName = cycle.PayrollCycleName,
-                StartDate = cycle.StartDate,
-                EndDate = cycle.EndDate,
-                PaymentDate = cycle.PaymentDate,
-                ProcessedAt = cycle.ProcessedAt,
-                PayrollRecordsCount = cycle.PayrollRecords.Count,
-                ReimbursementClaimsCount = cycle.ReimbursementClaims.Count,
-                PayslipNotificationsCount = cycle.PayslipNotifications.Count
-            };
+            return cycle;
         }
 
         public async Task<PayrollCycleDto> CreateAsync(CreatePayrollCycleDto dto)
@@ -71,8 +68,9 @@ namespace AdminService.Infrastructure.Services
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
                 PaymentDate = dto.PaymentDate,
-                CreatedBy = 1, // TODO: replace with logged-in user
+                CreatedBy = 1, 
                 CreatedOn = DateTime.UtcNow,
+                ProcessedAt = dto.ProcessedAt,
                 RecordStatus = 1
             };
 
@@ -102,28 +100,27 @@ namespace AdminService.Infrastructure.Services
             cycle.StartDate = dto.StartDate;
             cycle.EndDate = dto.EndDate;
             cycle.PaymentDate = dto.PaymentDate;
-            cycle.LastModifiedBy = 1; // TODO: replace with logged-in user
+            cycle.LastModifiedBy = 1; 
             cycle.LastModifiedOn = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
-            // Reload related counts
-            await _context.Entry(cycle).Collection(c => c.PayrollRecords).LoadAsync();
-            await _context.Entry(cycle).Collection(c => c.ReimbursementClaims).LoadAsync();
-            await _context.Entry(cycle).Collection(c => c.PayslipNotifications).LoadAsync();
-
-            return new PayrollCycleDto
-            {
-                PayrollCycleId = cycle.PayrollCycleId,
-                PayrollCycleName = cycle.PayrollCycleName,
-                StartDate = cycle.StartDate,
-                EndDate = cycle.EndDate,
-                PaymentDate = cycle.PaymentDate,
-                ProcessedAt = cycle.ProcessedAt,
-                PayrollRecordsCount = cycle.PayrollRecords.Count,
-                ReimbursementClaimsCount = cycle.ReimbursementClaims.Count,
-                PayslipNotificationsCount = cycle.PayslipNotifications.Count
-            };
+            return await _context.PayrollCycles
+                .AsNoTracking()
+                .Where(p => p.PayrollCycleId == payrollCycleId)
+                .Select(p => new PayrollCycleDto
+                {
+                    PayrollCycleId = p.PayrollCycleId,
+                    PayrollCycleName = p.PayrollCycleName,
+                    StartDate = p.StartDate,
+                    EndDate = p.EndDate,
+                    PaymentDate = p.PaymentDate,
+                    ProcessedAt = p.ProcessedAt,
+                    PayrollRecordsCount = _context.PayrollRecords.Count(r => r.PayrollCycleId == p.PayrollCycleId),
+                    ReimbursementClaimsCount = _context.ReimbursementClaims.Count(r => r.PayrollCycleId == p.PayrollCycleId),
+                    PayslipNotificationsCount = _context.PayslipNotifications.Count(n => n.PayrollCycleId == p.PayrollCycleId)
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task<bool> DeleteAsync(long payrollCycleId)

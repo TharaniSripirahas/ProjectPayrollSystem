@@ -6,6 +6,7 @@ namespace Payroll.Common.Models;
 public partial class PayrollRecord
 {
     public long RecordId { get; set; }
+    public string? RecordName { get; set; }
 
     public long PayrollCycleId { get; set; }
 

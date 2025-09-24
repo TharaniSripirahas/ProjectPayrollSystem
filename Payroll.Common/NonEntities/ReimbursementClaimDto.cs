@@ -78,9 +78,9 @@ namespace Payroll.Common.NonEntities
     {
         public long PayrollCycleId { get; set; }
         public string PayrollCycleName { get; set; } = string.Empty;
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public DateTime PaymentDate { get; set; }
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
+        public DateOnly PaymentDate { get; set; }
         public DateTime? ProcessedAt { get; set; }
 
         public int PayrollRecordsCount { get; set; }
@@ -90,10 +90,13 @@ namespace Payroll.Common.NonEntities
 
     public class CreatePayrollCycleDto
     {
+        public long PayrollCycleId { get; set; }
         public string PayrollCycleName { get; set; } = string.Empty;
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public DateTime PaymentDate { get; set; }
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
+        public DateOnly PaymentDate { get; set; }
+        public DateTime? ProcessedAt { get; set; }
+        public int RecordStatus { get; set; }
     }
 
     public class UpdatePayrollCycleDto : CreatePayrollCycleDto
@@ -121,6 +124,7 @@ namespace Payroll.Common.NonEntities
 
     public class CreatePayrollRecordDto
     {
+        public long RecordId { get; set; }
         public long PayrollCycleId { get; set; }
         public long EmployeeId { get; set; }
         public decimal GrossEarnings { get; set; }
@@ -129,6 +133,8 @@ namespace Payroll.Common.NonEntities
         public int PaymentStatus { get; set; }
         public int? PayslipGenerated { get; set; }
         public string? PayslipPath { get; set; }
+        public string? PayrollCycleName { get; set; }
+        public string? EmployeeName { get; set; }
     }
 
     public class UpdatePayrollRecordDto
@@ -148,6 +154,7 @@ namespace Payroll.Common.NonEntities
     public class PayrollComponentDto
     {
         public long PayrollComponentId { get; set; }
+        public string? ComponentName { get; set; }
         public long RecordId { get; set; }
         public long ComponentId { get; set; }
         public decimal Amount { get; set; }
@@ -159,10 +166,16 @@ namespace Payroll.Common.NonEntities
 
     public class CreatePayrollComponentDto
     {
+        public long PayrollComponentId { get; set; }
         public long RecordId { get; set; }
         public long ComponentId { get; set; }
         public decimal Amount { get; set; }
         public int IsEarning { get; set; }
+        public int RecordStatus { get; set; }
+        public string? PayrollCycleName { get; set; }
+        public string? EmployeeName { get; set; }
+        public long CreatedBy { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 
     public class UpdatePayrollComponentDto

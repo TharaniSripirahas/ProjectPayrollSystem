@@ -9,11 +9,11 @@ public partial class PayrollCycle
 
     public string PayrollCycleName { get; set; } = null!;
 
-    public DateTime StartDate { get; set; }
+    public DateOnly StartDate { get; set; }
 
-    public DateTime EndDate { get; set; }
+    public DateOnly EndDate { get; set; }
 
-    public DateTime PaymentDate { get; set; }
+    public DateOnly PaymentDate { get; set; }
 
     public DateTime? ProcessedAt { get; set; }
 

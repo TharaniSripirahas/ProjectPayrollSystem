@@ -40,33 +40,33 @@ namespace AdminService.Infrastructure.Services
 
         public async Task<PayrollRecordDto?> GetByIdAsync(long recordId)
         {
-            var record = await _context.PayrollRecords
+            var r = await _context.PayrollRecords
                 .Include(r => r.PayrollCycle)
                 .Include(r => r.Employee)
                 .FirstOrDefaultAsync(r => r.RecordId == recordId);
 
-            if (record == null) return null;
+            if (r == null) return null;
 
             return new PayrollRecordDto
             {
-                RecordId = record.RecordId,
-                PayrollCycleId = record.PayrollCycleId,
-                EmployeeId = record.EmployeeId,
-                GrossEarnings = record.GrossEarnings,
-                TotalDeduction = record.TotalDeduction,
-                NetPay = record.NetPay,
-                PaymentStatus = record.PaymentStatus,
-                PayslipGenerated = record.PayslipGenerated,
-                PayslipPath = record.PayslipPath,
-                RecordStatus = record.RecordStatus,
-                PayrollCycleName = record.PayrollCycle?.PayrollCycleName,
-                EmployeeName = record.Employee != null ? record.Employee.FirstName + " " + record.Employee.LastName : null
+                RecordId = r.RecordId,
+                PayrollCycleId = r.PayrollCycleId,
+                EmployeeId = r.EmployeeId,
+                GrossEarnings = r.GrossEarnings,
+                TotalDeduction = r.TotalDeduction,
+                NetPay = r.NetPay,
+                PaymentStatus = r.PaymentStatus,
+                PayslipGenerated = r.PayslipGenerated,
+                PayslipPath = r.PayslipPath,
+                RecordStatus = r.RecordStatus,
+                PayrollCycleName = r.PayrollCycle != null ? r.PayrollCycle.PayrollCycleName : null,
+                EmployeeName = r.Employee != null ? r.Employee.FirstName + " " + r.Employee.LastName : null
             };
         }
 
         public async Task<PayrollRecordDto> CreateAsync(CreatePayrollRecordDto dto)
         {
-            var record = new PayrollRecord
+            var r = new PayrollRecord
             {
                 PayrollCycleId = dto.PayrollCycleId,
                 EmployeeId = dto.EmployeeId,
@@ -76,19 +76,18 @@ namespace AdminService.Infrastructure.Services
                 PaymentStatus = dto.PaymentStatus,
                 PayslipGenerated = dto.PayslipGenerated,
                 PayslipPath = dto.PayslipPath,
-                CreatedBy = 1, // TODO: replace with logged-in user
+                CreatedBy = 1, 
                 CreatedOn = DateTime.UtcNow,
                 RecordStatus = 1
             };
 
-            _context.PayrollRecords.Add(record);
+            _context.PayrollRecords.Add(r);
             await _context.SaveChangesAsync();
 
-            // Reload with navigation properties so names are included
             var savedRecord = await _context.PayrollRecords
                 .Include(r => r.PayrollCycle)
                 .Include(r => r.Employee)
-                .FirstAsync(r => r.RecordId == record.RecordId);
+                .FirstAsync(r => r.RecordId == r.RecordId);
 
             return new PayrollRecordDto
             {
@@ -102,35 +101,34 @@ namespace AdminService.Infrastructure.Services
                 PayslipGenerated = savedRecord.PayslipGenerated,
                 PayslipPath = savedRecord.PayslipPath,
                 RecordStatus = savedRecord.RecordStatus,
-                PayrollCycleName = savedRecord.PayrollCycle?.PayrollCycleName,
+                PayrollCycleName = savedRecord.PayrollCycle != null ? savedRecord.PayrollCycle.PayrollCycleName : null,
                 EmployeeName = savedRecord.Employee != null ? savedRecord.Employee.FirstName + " " + savedRecord.Employee.LastName : null
             };
         }
 
         public async Task<PayrollRecordDto?> UpdateAsync(long recordId, UpdatePayrollRecordDto dto)
         {
-            var record = await _context.PayrollRecords.FindAsync(recordId);
-            if (record == null) return null;
+            var r = await _context.PayrollRecords.FindAsync(recordId);
+            if (r == null) return null;
 
-            record.PayrollCycleId = dto.PayrollCycleId;
-            record.EmployeeId = dto.EmployeeId;
-            record.GrossEarnings = dto.GrossEarnings;
-            record.TotalDeduction = dto.TotalDeduction;
-            record.NetPay = dto.NetPay;
-            record.PaymentStatus = dto.PaymentStatus;
-            record.PayslipGenerated = dto.PayslipGenerated;
-            record.PayslipPath = dto.PayslipPath;
-            record.RecordStatus = dto.RecordStatus;
-            record.LastModifiedBy = 1; // TODO: replace with logged-in user
-            record.LastModifiedOn = DateTime.UtcNow;
+            r.PayrollCycleId = dto.PayrollCycleId;
+            r.EmployeeId = dto.EmployeeId;
+            r.GrossEarnings = dto.GrossEarnings;
+            r.TotalDeduction = dto.TotalDeduction;
+            r.NetPay = dto.NetPay;
+            r.PaymentStatus = dto.PaymentStatus;
+            r.PayslipGenerated = dto.PayslipGenerated;
+            r.PayslipPath = dto.PayslipPath;
+            r.RecordStatus = dto.RecordStatus;
+            r.LastModifiedBy = 1; 
+            r.LastModifiedOn = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
-            // Reload with navigation properties so names are included
             var updatedRecord = await _context.PayrollRecords
                 .Include(r => r.PayrollCycle)
                 .Include(r => r.Employee)
-                .FirstAsync(r => r.RecordId == record.RecordId);
+                .FirstAsync(r => r.RecordId == r.RecordId);
 
             return new PayrollRecordDto
             {
@@ -144,17 +142,17 @@ namespace AdminService.Infrastructure.Services
                 PayslipGenerated = updatedRecord.PayslipGenerated,
                 PayslipPath = updatedRecord.PayslipPath,
                 RecordStatus = updatedRecord.RecordStatus,
-                PayrollCycleName = updatedRecord.PayrollCycle?.PayrollCycleName,
+                PayrollCycleName = updatedRecord.PayrollCycle != null ? updatedRecord.PayrollCycle.PayrollCycleName : null,
                 EmployeeName = updatedRecord.Employee != null ? updatedRecord.Employee.FirstName + " " + updatedRecord.Employee.LastName : null
             };
         }
 
         public async Task<bool> DeleteAsync(long recordId)
         {
-            var record = await _context.PayrollRecords.FindAsync(recordId);
-            if (record == null) return false;
+            var r = await _context.PayrollRecords.FindAsync(recordId);
+            if (r == null) return false;
 
-            _context.PayrollRecords.Remove(record);
+            _context.PayrollRecords.Remove(r);
             await _context.SaveChangesAsync();
             return true;
         }
