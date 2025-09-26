@@ -41,7 +41,9 @@ namespace Payroll.Common.NonEntities
         {
             public long LoanId { get; set; }
             public long EmployeeId { get; set; }
+            public string? EmployeeName { get; set; }
             public long LoanTypeId { get; set; }
+            public string? LoanTypeName { get; set; }
             public decimal Amount { get; set; }
             public DateTime SanctionDate { get; set; }
             public int TenureMonths { get; set; }
@@ -50,8 +52,6 @@ namespace Payroll.Common.NonEntities
             public int Status { get; set; }
             public string Purpose { get; set; } = string.Empty;
 
-            public string? EmployeeName { get; set; }
-            public string? LoanTypeName { get; set; }
         }
 
         public class CreateEmployeeLoanDto
@@ -152,6 +152,7 @@ namespace Payroll.Common.NonEntities
             public DateTime? CreatedOn { get; set; } = DateTime.UtcNow;
 
             public int RecordStatus { get; set; } = 0;
+            public DateTime? LastModifiedOn { get; set; }
 
         }
 
@@ -196,6 +197,8 @@ namespace Payroll.Common.NonEntities
             public long CreatedBy { get; set; }
             public DateTime? CreatedOn { get; set; } = DateTime.UtcNow;
             public int RecordStatus { get; set; } = 0;
+            public long? LastModifiedBy { get; set; }
+            public DateTime? LastModifiedOn { get; set; }
         }
         public class EmployeeDonationUpdateDto
         {

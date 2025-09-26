@@ -31,7 +31,12 @@ namespace AdminService.Infrastructure.Services
                     RoleName = p.Role.RoleName,
                     Resource = p.Resource,
                     Action = p.Action,
-                    RecordStatus = p.RecordStatus
+                    RecordStatus = p.RecordStatus,
+                    LastModifiedBy = p.LastModifiedBy,
+                    LastModifiedOn = p.LastModifiedOn,
+                    CreatedBy = p.CreatedBy,
+                    CreatedOn = p.CreatedOn
+
                 })
                 .ToListAsync();
         }
@@ -51,12 +56,18 @@ namespace AdminService.Infrastructure.Services
                 RoleName = p.Role.RoleName,
                 Resource = p.Resource,
                 Action = p.Action,
-                RecordStatus = p.RecordStatus
+                RecordStatus = p.RecordStatus,
+                LastModifiedBy = p.LastModifiedBy,
+                LastModifiedOn = p.LastModifiedOn,
+                CreatedBy = p.CreatedBy,
+                CreatedOn = p.CreatedOn
             };
         }
 
         public async Task<PermissionDto> CreateAsync(CreatePermissionDto dto)
         {
+            var now = DateTime.UtcNow;
+
             var entity = new Permission
             {
                 RoleId = dto.RoleId,
@@ -64,7 +75,8 @@ namespace AdminService.Infrastructure.Services
                 Action = dto.Action,
                 CreatedOn = DateTime.UtcNow,
                 RecordStatus = 1,
-                CreatedBy = 1 // TODO: Replace with logged-in user ID
+                CreatedBy = 1,
+                LastModifiedOn = now,
             };
 
             _context.Permissions.Add(entity);
@@ -77,7 +89,9 @@ namespace AdminService.Infrastructure.Services
                 RoleName = (await _context.UserRoles.FindAsync(entity.RoleId))?.RoleName ?? "",
                 Resource = entity.Resource,
                 Action = entity.Action,
-                RecordStatus = entity.RecordStatus
+                RecordStatus = entity.RecordStatus,
+                LastModifiedOn = entity.LastModifiedOn
+
             };
         }
 
@@ -90,7 +104,7 @@ namespace AdminService.Infrastructure.Services
             entity.Resource = dto.Resource;
             entity.Action = dto.Action;
             entity.RecordStatus = dto.RecordStatus;
-            entity.LastModifiedBy = 1; // TODO: Replace with logged-in user ID
+            entity.LastModifiedBy = 1; 
             entity.LastModifiedOn = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();

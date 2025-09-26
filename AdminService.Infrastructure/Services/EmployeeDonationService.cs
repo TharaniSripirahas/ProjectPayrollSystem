@@ -5,7 +5,6 @@ using Payroll.Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using static Payroll.Common.NonEntities.LoansDto;
 
@@ -23,14 +22,14 @@ namespace AdminService.Infrastructure.Services
         public async Task<IEnumerable<EmployeeDonationDto>> GetAllAsync()
         {
             return await _context.EmployeeDonations
-                .Include(e => e.Employee)
-                .Include(e => e.Fund)
-                .Include(e => e.PayrollCycle)
+                .Include(d => d.Employee)
+                .Include(d => d.Fund)
+                .Include(d => d.PayrollCycle) 
                 .Select(d => new EmployeeDonationDto
                 {
                     DonationId = d.DonationId,
                     EmployeeId = d.EmployeeId,
-                    EmployeeName = d.Employee != null ? d.Employee.FirstName + " " + d.Employee.LastName : null,
+                    EmployeeName = d.Employee != null ? $"{d.Employee.FirstName} {d.Employee.LastName}" : null,
                     FundId = d.FundId,
                     FundName = d.Fund != null ? d.Fund.FundName : null,
                     Amount = d.Amount,
@@ -50,15 +49,15 @@ namespace AdminService.Infrastructure.Services
         public async Task<EmployeeDonationDto?> GetByIdAsync(long donationId)
         {
             return await _context.EmployeeDonations
-                .Include(e => e.Employee)
-                .Include(e => e.Fund)
-                .Include(e => e.PayrollCycle)
+                .Include(d => d.Employee)
+                .Include(d => d.Fund)
+                .Include(d => d.PayrollCycle) 
                 .Where(d => d.DonationId == donationId)
                 .Select(d => new EmployeeDonationDto
                 {
                     DonationId = d.DonationId,
                     EmployeeId = d.EmployeeId,
-                    EmployeeName = d.Employee != null ? d.Employee.FirstName + " " + d.Employee.LastName : null,
+                    EmployeeName = d.Employee != null ? $"{d.Employee.FirstName} {d.Employee.LastName}" : null,
                     FundId = d.FundId,
                     FundName = d.Fund != null ? d.Fund.FundName : null,
                     Amount = d.Amount,
@@ -77,6 +76,8 @@ namespace AdminService.Infrastructure.Services
 
         public async Task<EmployeeDonationDto> CreateAsync(EmployeeDonationCreateDto dto)
         {
+            var now = DateTime.UtcNow;
+
             var entity = new EmployeeDonation
             {
                 EmployeeId = dto.EmployeeId,
@@ -87,13 +88,43 @@ namespace AdminService.Infrastructure.Services
                 PayrollCycleId = dto.PayrollCycleId,
                 CreatedBy = dto.CreatedBy,
                 CreatedOn = dto.CreatedOn ?? DateTime.UtcNow,
-                RecordStatus = dto.RecordStatus
+                RecordStatus = dto.RecordStatus,
+                LastModifiedBy = dto.CreatedBy,
+                LastModifiedOn = now,
             };
 
             _context.EmployeeDonations.Add(entity);
             await _context.SaveChangesAsync();
 
-            return await GetByIdAsync(entity.DonationId) ?? throw new Exception("Donation not created");
+            var createdDonation = await _context.EmployeeDonations
+                .Include(d => d.Employee)
+                .Include(d => d.Fund)
+                .Include(d => d.PayrollCycle)
+                .FirstOrDefaultAsync(d => d.DonationId == entity.DonationId);
+
+            if (createdDonation == null)
+                throw new Exception("Donation not created.");
+
+            return new EmployeeDonationDto
+            {
+                DonationId = createdDonation.DonationId,
+                EmployeeId = createdDonation.EmployeeId,
+                EmployeeName = createdDonation.Employee != null
+                    ? $"{createdDonation.Employee.FirstName} {createdDonation.Employee.LastName}"
+                    : null,
+                FundId = createdDonation.FundId,
+                FundName = createdDonation.Fund != null ? createdDonation.Fund.FundName : null,
+                Amount = createdDonation.Amount,
+                DonationDate = createdDonation.DonationDate,
+                Cause = createdDonation.Cause,
+                PayrollCycleId = createdDonation.PayrollCycleId,
+                PayrollCycleName = createdDonation.PayrollCycle?.PayrollCycleName,
+                CreatedBy = createdDonation.CreatedBy,
+                CreatedOn = createdDonation.CreatedOn,
+                LastModifiedBy = createdDonation.LastModifiedBy,
+                LastModifiedOn = createdDonation.LastModifiedOn,
+                RecordStatus = createdDonation.RecordStatus
+            };
         }
 
         public async Task<EmployeeDonationDto?> UpdateAsync(EmployeeDonationUpdateDto dto)

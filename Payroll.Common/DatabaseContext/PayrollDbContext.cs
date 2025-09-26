@@ -130,14 +130,30 @@ public partial class PayrollDbContext : DbContext
             entity.HasOne(d => d.Request).WithMany(p => p.ApprovalActions).HasForeignKey(d => d.RequestId);
         });
 
+        //modelBuilder.Entity<ApprovalLevel>(entity =>
+        //{
+        //    entity.HasKey(e => e.LevelId);
+
+        //    entity.HasIndex(e => e.WorkflowId, "IX_ApprovalLevels_WorkflowId");
+
+        //    entity.HasOne(d => d.Workflow).WithMany(p => p.ApprovalLevels).HasForeignKey(d => d.WorkflowId);
+        //});
+
         modelBuilder.Entity<ApprovalLevel>(entity =>
         {
             entity.HasKey(e => e.LevelId);
 
             entity.HasIndex(e => e.WorkflowId, "IX_ApprovalLevels_WorkflowId");
 
-            entity.HasOne(d => d.Workflow).WithMany(p => p.ApprovalLevels).HasForeignKey(d => d.WorkflowId);
+            entity.HasOne(d => d.Workflow)
+                .WithMany(p => p.ApprovalLevels)
+                .HasForeignKey(d => d.WorkflowId);
+
+            entity.HasOne(d => d.Approver)
+                .WithMany()
+                .HasForeignKey(d => d.ApproverId);
         });
+
 
         modelBuilder.Entity<ApprovalRequest>(entity =>
         {

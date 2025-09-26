@@ -1,12 +1,11 @@
 ﻿using AdminService.Core.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payroll.Common.DatabaseContext;
 using Payroll.Common.Models;
+using Payroll.Common.NonEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using static Payroll.Common.NonEntities.NotificationsApprovalDto;
 
@@ -24,30 +23,41 @@ namespace AdminService.Infrastructure.Services
         public async Task<IEnumerable<ApprovalActionDto>> GetAllAsync()
         {
             return await _context.ApprovalActions
+                .Include(a => a.Request)  
+                .Include(a => a.Approver)  
                 .Select(a => new ApprovalActionDto
                 {
                     ActionId = a.ActionId,
                     RequestId = a.RequestId,
+                    RequestName = a.Request.EntityTable,
                     LevelId = a.LevelId,
                     ApproverId = a.ApproverId,
+                    ApproverName = a.Approver != null ? a.Approver.LastName : null,
                     ActionType = a.ActionType,
                     Comments = a.Comments,
                     ActionDate = a.ActionDate
+                    
                 })
                 .ToListAsync();
         }
 
         public async Task<ApprovalActionDto?> GetByIdAsync(long actionId)
         {
-            var entity = await _context.ApprovalActions.FindAsync(actionId);
+            var entity = await _context.ApprovalActions
+                .Include(a => a.Request)
+                .Include(a => a.Approver)
+                .FirstOrDefaultAsync(a => a.ActionId == actionId);
+
             if (entity == null) return null;
 
             return new ApprovalActionDto
             {
                 ActionId = entity.ActionId,
                 RequestId = entity.RequestId,
+                RequestName = entity.Request.EntityTable,
                 LevelId = entity.LevelId,
                 ApproverId = entity.ApproverId,
+                ApproverName = entity.Approver != null ? entity.Approver.LastName : null,
                 ActionType = entity.ActionType,
                 Comments = entity.Comments,
                 ActionDate = entity.ActionDate
@@ -72,12 +82,17 @@ namespace AdminService.Infrastructure.Services
             _context.ApprovalActions.Add(entity);
             await _context.SaveChangesAsync();
 
+            await _context.Entry(entity).Reference(a => a.Request).LoadAsync();
+            await _context.Entry(entity).Reference(a => a.Approver).LoadAsync();
+
             return new ApprovalActionDto
             {
                 ActionId = entity.ActionId,
                 RequestId = entity.RequestId,
+                RequestName = entity.Request.EntityTable,
                 LevelId = entity.LevelId,
                 ApproverId = entity.ApproverId,
+                ApproverName = entity.Approver?.LastName,
                 ActionType = entity.ActionType,
                 Comments = entity.Comments,
                 ActionDate = entity.ActionDate
@@ -86,7 +101,11 @@ namespace AdminService.Infrastructure.Services
 
         public async Task<ApprovalActionDto?> UpdateAsync(long actionId, UpdateApprovalActionDto dto)
         {
-            var entity = await _context.ApprovalActions.FindAsync(actionId);
+            var entity = await _context.ApprovalActions
+                .Include(a => a.Request)
+                .Include(a => a.Approver)
+                .FirstOrDefaultAsync(a => a.ActionId == actionId);
+
             if (entity == null) return null;
 
             entity.ActionType = dto.ActionType;
@@ -100,11 +119,13 @@ namespace AdminService.Infrastructure.Services
             {
                 ActionId = entity.ActionId,
                 RequestId = entity.RequestId,
+                RequestName = entity.Request.EntityTable,
                 LevelId = entity.LevelId,
                 ApproverId = entity.ApproverId,
+                ApproverName = entity.Approver?.LastName,
                 ActionType = entity.ActionType,
                 Comments = entity.Comments,
-                ActionDate = entity.ActionDate
+                ActionDate = entity.ActionDate,
             };
         }
 
@@ -119,4 +140,3 @@ namespace AdminService.Infrastructure.Services
         }
     }
 }
-

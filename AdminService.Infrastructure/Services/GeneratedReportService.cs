@@ -19,10 +19,11 @@ namespace AdminService.Infrastructure.Services
             _context = context;
         }
 
+        // Get all reports
         public async Task<IEnumerable<GeneratedReportDto>> GetAllAsync()
         {
             return await _context.GeneratedReports
-                .Include(r => r.GeneratedByNavigation) // Include the employee
+                .Include(r => r.GeneratedByNavigation)
                 .Select(r => new GeneratedReportDto
                 {
                     ReportId = r.ReportId,
@@ -31,13 +32,16 @@ namespace AdminService.Infrastructure.Services
                     StartDate = r.StartDate,
                     EndDate = r.EndDate,
                     GeneratedBy = r.GeneratedBy,
-                    GeneratedByName = r.GeneratedByNavigation != null ? r.GeneratedByNavigation.FirstName + " " + r.GeneratedByNavigation.LastName : null,
+                    GeneratedByName = r.GeneratedByNavigation != null
+                        ? r.GeneratedByNavigation.FirstName + " " + r.GeneratedByNavigation.LastName
+                        : null,
                     GeneratedAt = r.GeneratedAt,
                     RecordStatus = r.RecordStatus
                 })
                 .ToListAsync();
         }
 
+        // Get report by ID
         public async Task<GeneratedReportDto?> GetByIdAsync(long reportId)
         {
             var entity = await _context.GeneratedReports
@@ -54,13 +58,16 @@ namespace AdminService.Infrastructure.Services
                 StartDate = entity.StartDate,
                 EndDate = entity.EndDate,
                 GeneratedBy = entity.GeneratedBy,
-                GeneratedByName = entity.GeneratedByNavigation != null ? entity.GeneratedByNavigation.FirstName + " " + entity.GeneratedByNavigation.LastName : null,
+                GeneratedByName = entity.GeneratedByNavigation != null
+                    ? entity.GeneratedByNavigation.FirstName + " " + entity.GeneratedByNavigation.LastName
+                    : null,
                 GeneratedAt = entity.GeneratedAt,
                 RecordStatus = entity.RecordStatus
             };
         }
 
-        public async Task<GeneratedReportDto> CreateAsync(CreateGeneratedReportDto dto)
+        // Create new report
+        public async Task<GeneratedReportDto> CreateAsync(CreateGeneratedReportDto dto, long loggedInUserId = 1)
         {
             var employee = await _context.Employees.FindAsync(dto.GeneratedBy);
             if (employee == null)
@@ -74,7 +81,7 @@ namespace AdminService.Infrastructure.Services
                 EndDate = dto.EndDate,
                 GeneratedBy = dto.GeneratedBy,
                 GeneratedAt = dto.GeneratedAt ?? DateTime.UtcNow,
-                CreatedBy = dto.GeneratedBy,
+                CreatedBy = loggedInUserId,  
                 CreatedOn = DateTime.UtcNow,
                 RecordStatus = 1,
                 GeneratedByNavigation = employee
@@ -97,7 +104,8 @@ namespace AdminService.Infrastructure.Services
             };
         }
 
-        public async Task<GeneratedReportDto?> UpdateAsync(long reportId, UpdateGeneratedReportDto dto)
+        // update report
+        public async Task<GeneratedReportDto?> UpdateAsync(long reportId, UpdateGeneratedReportDto dto, long loggedInUserId = 1)
         {
             var entity = await _context.GeneratedReports
                 .Include(r => r.GeneratedByNavigation)
@@ -105,12 +113,12 @@ namespace AdminService.Infrastructure.Services
 
             if (entity == null) return null;
 
-            // Update GeneratedBy if changed
             if (entity.GeneratedBy != dto.GeneratedBy)
             {
                 var employee = await _context.Employees.FindAsync(dto.GeneratedBy);
                 if (employee == null)
                     throw new Exception($"Employee with ID {dto.GeneratedBy} not found.");
+
                 entity.GeneratedBy = dto.GeneratedBy;
                 entity.GeneratedByNavigation = employee;
             }
@@ -120,7 +128,7 @@ namespace AdminService.Infrastructure.Services
             entity.StartDate = dto.StartDate;
             entity.EndDate = dto.EndDate;
             entity.RecordStatus = dto.RecordStatus;
-            entity.LastModifiedBy = dto.GeneratedBy;
+            entity.LastModifiedBy = loggedInUserId; 
             entity.LastModifiedOn = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -133,7 +141,9 @@ namespace AdminService.Infrastructure.Services
                 StartDate = entity.StartDate,
                 EndDate = entity.EndDate,
                 GeneratedBy = entity.GeneratedBy,
-                GeneratedByName = entity.GeneratedByNavigation != null ? entity.GeneratedByNavigation.FirstName + " " + entity.GeneratedByNavigation.LastName : null,
+                GeneratedByName = entity.GeneratedByNavigation != null
+                    ? entity.GeneratedByNavigation.FirstName + " " + entity.GeneratedByNavigation.LastName
+                    : null,
                 GeneratedAt = entity.GeneratedAt,
                 RecordStatus = entity.RecordStatus
             };

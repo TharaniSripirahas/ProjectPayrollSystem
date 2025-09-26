@@ -23,8 +23,8 @@ namespace AdminService.Infrastructure.Services
         public async Task<IEnumerable<EmployeeStatutoryDetailDto>> GetAllAsync()
         {
             return await _context.EmployeeStatutoryDetails
-                .Include(e => e.Employee)                 // optional, if you want full employee details
-                .Include(e => e.StatutoryDeduction)       // optional, if you want full deduction details
+                .Include(e => e.Employee)                 
+                .Include(e => e.StatutoryDeduction)       
                 .Select(e => new EmployeeStatutoryDetailDto
                 {
                     DetailsId = e.DetailsId,
@@ -33,6 +33,8 @@ namespace AdminService.Infrastructure.Services
                     AccountNumber = e.AccountNumber,
                     AccountDetails = e.AccountDetails,
                     IsApplicable = e.IsApplicable,
+                    EmployeeName = e.Employee.FirstName + " " + e.Employee.LastName,
+                    DeductionName = e.StatutoryDeduction.DeductionName,
                     RecordStatus = e.RecordStatus
                 })
                 .AsNoTracking()
@@ -57,6 +59,8 @@ namespace AdminService.Infrastructure.Services
                 AccountNumber = entity.AccountNumber,
                 AccountDetails = entity.AccountDetails,
                 IsApplicable = entity.IsApplicable,
+                EmployeeName = entity.Employee.FirstName + " " + entity.Employee.LastName,
+                DeductionName = entity.StatutoryDeduction.DeductionName,
                 RecordStatus = entity.RecordStatus
             };
         }
@@ -70,7 +74,7 @@ namespace AdminService.Infrastructure.Services
                 AccountNumber = dto.AccountNumber,
                 AccountDetails = dto.AccountDetails,
                 IsApplicable = dto.IsApplicable,
-                CreatedBy = dto.CreatedBy > 0 ? dto.CreatedBy : 1, // fallback to 1
+                CreatedBy = dto.CreatedBy > 0 ? dto.CreatedBy : 1,
                 CreatedOn = dto.CreatedOn ?? DateTime.UtcNow,
                 RecordStatus = dto.RecordStatus > 0 ? dto.RecordStatus : 1
             };
@@ -78,7 +82,26 @@ namespace AdminService.Infrastructure.Services
             _context.EmployeeStatutoryDetails.Add(entity);
             await _context.SaveChangesAsync();
 
-            return await GetByIdAsync(entity.DetailsId) ?? throw new Exception("Error retrieving created entity.");
+            var savedEntity = await _context.EmployeeStatutoryDetails
+                .Include(e => e.Employee)
+                .Include(e => e.StatutoryDeduction)
+                .FirstOrDefaultAsync(e => e.DetailsId == entity.DetailsId);
+
+            if (savedEntity == null)
+                throw new Exception("Error retrieving created entity.");
+
+            return new EmployeeStatutoryDetailDto
+            {
+                DetailsId = savedEntity.DetailsId,
+                EmployeeId = savedEntity.EmployeeId,
+                EmployeeName = savedEntity.Employee.FirstName + " " + savedEntity.Employee.LastName, 
+                DeductionId = savedEntity.DeductionId,
+                DeductionName = savedEntity.StatutoryDeduction.DeductionName,                      
+                AccountNumber = savedEntity.AccountNumber,
+                AccountDetails = savedEntity.AccountDetails,
+                IsApplicable = savedEntity.IsApplicable,
+                RecordStatus = savedEntity.RecordStatus
+            };
         }
 
         public async Task<EmployeeStatutoryDetailDto?> UpdateAsync(long detailsId, UpdateEmployeeStatutoryDetailDto dto)

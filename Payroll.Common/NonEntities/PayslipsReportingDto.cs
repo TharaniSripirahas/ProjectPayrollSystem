@@ -70,7 +70,7 @@ namespace Payroll.Common.NonEntities
             public int RecordStatus { get; set; }
 
             public long? EmployeeId { get; set; }
-            public long? PayslipStorageId { get; set; }
+           // public long? PayslipStorageId { get; set; }
         }
 
 

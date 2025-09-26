@@ -53,8 +53,10 @@ namespace Payroll.Common.NonEntities
         public class EmployeeStatutoryDetailDto
         {
             public long DetailsId { get; set; }
+            public string? EmployeeName { get; set; }
             public long EmployeeId { get; set; }
             public long DeductionId { get; set; }
+            public string? DeductionName { get; set; }
             public string AccountNumber { get; set; } = string.Empty;
             public string AccountDetails { get; set; } = string.Empty;
             public int IsApplicable { get; set; }
@@ -88,6 +90,7 @@ namespace Payroll.Common.NonEntities
         {
             public long DeclarationId { get; set; }
             public long EmployeeId { get; set; }
+            public string EmployeeName { get; set; } = string.Empty;
             public string FinancialYear { get; set; } = string.Empty;
             public decimal DeclaredAmount { get; set; }
             public decimal VerifiedAmount { get; set; }
@@ -134,6 +137,7 @@ namespace Payroll.Common.NonEntities
         {
             public long FormId { get; set; }
             public long EmployeeId { get; set; }
+            public string? EmployeeName { get; set; }
             public string FinancialYear { get; set; } = string.Empty;
             public string FilePath { get; set; } = string.Empty;
             public DateTime GeneratedAt { get; set; }

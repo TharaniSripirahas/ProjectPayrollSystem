@@ -6,7 +6,6 @@ using Payroll.Common.NonEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using static Payroll.Common.NonEntities.NotificationsApprovalDto;
 
@@ -23,29 +22,30 @@ namespace NotificationsApproval.Infrastructure.Services
 
         public async Task<IEnumerable<NotificationDto>> GetAllAsync()
         {
-            return await _context.Notifications
+            var notifications = await _context.Notifications
                 .Include(n => n.Recipient)
                 .Include(n => n.Sender)
-                .Select(n => new NotificationDto
-                {
-                    NotificationId = n.NotificationId,
-                    RecipientId = n.RecipientId,
-                    RecipientName = n.Recipient != null ? n.Recipient.FirstName + " " + n.Recipient.LastName : null,
-                    SenderId = n.SenderId,
-                    SenderName = n.Sender != null ? n.Sender.FirstName + " " + n.Sender.LastName : null,
-                    Title = n.Title,
-                    Message = n.Message,
-                    NotificationType = n.NotificationType,
-                    ReferenceId = n.ReferenceId,
-                    ReferenceTable = n.ReferenceTable,
-                    IsRead = n.IsRead,
-                    CreatedAt = n.CreatedAt,
-                    ReadAt = n.ReadAt,
-                    DeliveryStatus = n.DeliveryStatus,
-                    DeliveryChannel = n.DeliveryChannel,
-                    RecordStatus = n.RecordStatus
-                })
                 .ToListAsync();
+
+            return notifications.Select(n => new NotificationDto
+            {
+                NotificationId = n.NotificationId,
+                RecipientId = n.RecipientId,
+                RecipientName = n.Recipient != null ? n.Recipient.FirstName + " " + n.Recipient.LastName : null,
+                SenderId = n.SenderId,
+                SenderName = n.Sender != null ? n.Sender.FirstName + " " + n.Sender.LastName : null,
+                Title = n.Title,
+                Message = n.Message,
+                NotificationType = n.NotificationType,
+                ReferenceId = n.ReferenceId,
+                ReferenceTable = n.ReferenceTable,
+                IsRead = n.IsRead ?? 0,  
+                CreatedAt = n.CreatedOn,
+                ReadAt = n.ReadAt,
+                DeliveryStatus = n.DeliveryStatus,
+                DeliveryChannel = n.DeliveryChannel,
+                RecordStatus = n.RecordStatus
+            }).ToList();
         }
 
         public async Task<NotificationDto?> GetByIdAsync(long notificationId)
@@ -69,15 +69,14 @@ namespace NotificationsApproval.Infrastructure.Services
                 NotificationType = n.NotificationType,
                 ReferenceId = n.ReferenceId,
                 ReferenceTable = n.ReferenceTable,
-                IsRead = n.IsRead,
-                CreatedAt = n.CreatedAt,
+                IsRead = n.IsRead ?? 0,
+                CreatedAt = n.CreatedOn,
                 ReadAt = n.ReadAt,
                 DeliveryStatus = n.DeliveryStatus,
                 DeliveryChannel = n.DeliveryChannel,
                 RecordStatus = n.RecordStatus
             };
         }
-
 
         public async Task<NotificationDto> CreateAsync(CreateNotificationDto dto)
         {
@@ -98,6 +97,8 @@ namespace NotificationsApproval.Infrastructure.Services
                 CreatedBy = 1,
                 CreatedOn = DateTime.UtcNow,
                 RecordStatus = 1,
+                IsRead = 0, 
+                ReadAt = null,
                 Recipient = recipient,
                 Sender = sender
             };
@@ -126,8 +127,7 @@ namespace NotificationsApproval.Infrastructure.Services
             };
         }
 
-
-        public async Task<NotificationsApprovalDto.NotificationDto?> UpdateAsync(long notificationId, NotificationsApprovalDto.UpdateNotificationDto dto)
+        public async Task<NotificationDto?> UpdateAsync(long notificationId, UpdateNotificationDto dto)
         {
             var entity = await _context.Notifications.FindAsync(notificationId);
             if (entity == null) return null;
@@ -139,27 +139,35 @@ namespace NotificationsApproval.Infrastructure.Services
             entity.NotificationType = dto.NotificationType;
             entity.ReferenceId = dto.ReferenceId;
             entity.ReferenceTable = dto.ReferenceTable;
+
+            if ((entity.IsRead ?? 0) == 0 && dto.IsRead == 1)
+            {
+                entity.ReadAt = DateTime.UtcNow;
+            }
             entity.IsRead = dto.IsRead;
+
             entity.DeliveryStatus = dto.DeliveryStatus;
             entity.DeliveryChannel = dto.DeliveryChannel;
             entity.RecordStatus = dto.RecordStatus;
-            entity.LastModifiedBy = 1;
+            entity.LastModifiedBy = 1; 
             entity.LastModifiedOn = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
-            return new NotificationsApprovalDto.NotificationDto
+            return new NotificationDto
             {
                 NotificationId = entity.NotificationId,
                 RecipientId = entity.RecipientId,
+                RecipientName = entity.Recipient != null ? entity.Recipient.FirstName + " " + entity.Recipient.LastName : null,
                 SenderId = entity.SenderId,
+                SenderName = entity.Sender != null ? entity.Sender.FirstName + " " + entity.Sender.LastName : null,
                 Title = entity.Title,
                 Message = entity.Message,
                 NotificationType = entity.NotificationType,
                 ReferenceId = entity.ReferenceId,
                 ReferenceTable = entity.ReferenceTable,
                 IsRead = entity.IsRead,
-                CreatedAt = entity.CreatedAt,
+                CreatedAt = entity.CreatedOn,
                 ReadAt = entity.ReadAt,
                 DeliveryStatus = entity.DeliveryStatus,
                 DeliveryChannel = entity.DeliveryChannel,

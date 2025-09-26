@@ -59,6 +59,8 @@ namespace AdminService.Infrastructure.Services
 
         public async Task<DonationFundDto> CreateAsync(DonationFundCreateDto dto)
         {
+            var now = DateTime.UtcNow;
+
             var entity = new DonationFund
             {
                 FundName = dto.FundName,
@@ -66,7 +68,9 @@ namespace AdminService.Infrastructure.Services
                 IsActive = dto.IsActive ?? 1,
                 CreatedBy = dto.CreatedBy,
                 CreatedOn = dto.CreatedOn ?? DateTime.UtcNow,
-                RecordStatus = dto.RecordStatus
+                RecordStatus = dto.RecordStatus,
+                LastModifiedBy = dto.CreatedBy,
+                LastModifiedOn = now
             };
 
             _context.DonationFunds.Add(entity);

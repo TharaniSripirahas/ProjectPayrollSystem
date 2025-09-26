@@ -23,33 +23,52 @@ namespace AdminService.Infrastructure.Services
         public async Task<IEnumerable<ApprovalLevelDto>> GetAllAsync()
         {
             return await _context.ApprovalLevels
+                .Include(x => x.Workflow)        
+                .Include(x => x.ApproverRole)    
                 .Select(x => new ApprovalLevelDto
                 {
                     LevelId = x.LevelId,
                     WorkflowId = x.WorkflowId,
+                    WorkflowName = x.Workflow != null ? x.Workflow.WorkflowName : null,
                     LevelNumber = x.LevelNumber,
                     ApproverRoleId = x.ApproverRoleId,
-                    WorkflowName = x.Workflow != null ? x.Workflow.WorkflowName : null, 
-                    IsFinalApproval = x.IsFinalApproval == 1
+                    ApproverRoleName = x.ApproverRole != null ? x.ApproverRole.RoleName : null,
+                    IsFinalApproval = x.IsFinalApproval == 1,
+                    CreatedBy = x.CreatedBy,
+                    CreatedOn = x.CreatedOn,
+                    LastModifiedBy = x.LastModifiedBy,
+                    LastModifiedOn = x.LastModifiedOn,
+                    RecordStatus = x.RecordStatus
                 })
                 .ToListAsync();
         }
 
         public async Task<ApprovalLevelDto?> GetByIdAsync(long levelId)
         {
-            var entity = await _context.ApprovalLevels.FindAsync(levelId);
+            var entity = await _context.ApprovalLevels
+                .Include(x => x.Workflow)
+                .Include(x => x.ApproverRole)
+                .FirstOrDefaultAsync(x => x.LevelId == levelId);
+
             if (entity == null) return null;
 
             return new ApprovalLevelDto
             {
                 LevelId = entity.LevelId,
                 WorkflowId = entity.WorkflowId,
+                WorkflowName = entity.Workflow != null ? entity.Workflow.WorkflowName : null,
                 LevelNumber = entity.LevelNumber,
                 ApproverRoleId = entity.ApproverRoleId,
-                WorkflowName = entity.Workflow != null ? entity.Workflow.WorkflowName : null,
-                IsFinalApproval = entity.IsFinalApproval == 1
+                ApproverRoleName = entity.ApproverRole != null ? entity.ApproverRole.RoleName : null,
+                IsFinalApproval = entity.IsFinalApproval == 1,
+                CreatedBy = entity.CreatedBy,
+                CreatedOn = entity.CreatedOn,
+                LastModifiedBy = entity.LastModifiedBy,
+                LastModifiedOn = entity.LastModifiedOn,
+                RecordStatus = entity.RecordStatus
             };
         }
+
 
         public async Task<ApprovalLevelDto> CreateAsync(CreateApprovalLevelDto dto)
         {
@@ -69,12 +88,17 @@ namespace AdminService.Infrastructure.Services
             _context.ApprovalLevels.Add(entity);
             await _context.SaveChangesAsync();
 
+            await _context.Entry(entity).Reference(x => x.Workflow).LoadAsync();
+            await _context.Entry(entity).Reference(x => x.ApproverRole).LoadAsync();
+
             return new ApprovalLevelDto
             {
                 LevelId = entity.LevelId,
                 WorkflowId = entity.WorkflowId,
                 LevelNumber = entity.LevelNumber,
+                WorkflowName = entity.Workflow != null ? entity.Workflow.WorkflowName : null,
                 ApproverRoleId = entity.ApproverRoleId,
+                ApproverRoleName = entity.ApproverRole != null ? entity.ApproverRole.RoleName : null,
                 IsFinalApproval = entity.IsFinalApproval == 1,
                 CreatedBy = entity.CreatedBy,
                 CreatedOn = entity.CreatedOn,

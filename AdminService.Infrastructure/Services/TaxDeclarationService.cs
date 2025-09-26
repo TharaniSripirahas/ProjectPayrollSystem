@@ -5,7 +5,6 @@ using Payroll.Common.NonEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace AdminService.Core.Interfaces
@@ -22,10 +21,12 @@ namespace AdminService.Core.Interfaces
         public async Task<IEnumerable<DeductionsComplianceDto.TaxDeclarationDto>> GetAllAsync()
         {
             return await _context.TaxDeclarations
+                .Include(t => t.Employee)
                 .Select(t => new DeductionsComplianceDto.TaxDeclarationDto
                 {
                     DeclarationId = t.DeclarationId,
                     EmployeeId = t.EmployeeId,
+                    EmployeeName = t.Employee.FirstName + " " + t.Employee.LastName,
                     FinancialYear = t.FinancialYear,
                     DeclaredAmount = t.DeclaredAmount,
                     VerifiedAmount = t.VerifiedAmount,
@@ -35,18 +36,24 @@ namespace AdminService.Core.Interfaces
                     VerifiedAt = t.VerifiedAt,
                     RecordStatus = t.RecordStatus
                 })
+                .AsNoTracking()
                 .ToListAsync();
         }
 
         public async Task<DeductionsComplianceDto.TaxDeclarationDto?> GetByIdAsync(long declarationId)
         {
-            var entity = await _context.TaxDeclarations.FindAsync(declarationId);
+            var entity = await _context.TaxDeclarations
+                .Include(t => t.Employee)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.DeclarationId == declarationId);
+
             if (entity == null) return null;
 
             return new DeductionsComplianceDto.TaxDeclarationDto
             {
                 DeclarationId = entity.DeclarationId,
                 EmployeeId = entity.EmployeeId,
+                EmployeeName = entity.Employee.FirstName + " " + entity.Employee.LastName,
                 FinancialYear = entity.FinancialYear,
                 DeclaredAmount = entity.DeclaredAmount,
                 VerifiedAmount = entity.VerifiedAmount,
@@ -65,28 +72,33 @@ namespace AdminService.Core.Interfaces
                 EmployeeId = dto.EmployeeId,
                 FinancialYear = dto.FinancialYear,
                 DeclaredAmount = dto.DeclaredAmount,
-                VerifiedAmount = 0,  // default
-                Status = 0,          // default pending
-                CreatedBy = 1,       // TODO: replace with logged-in user
-                CreatedOn = DateTime.UtcNow,
-                RecordStatus = 1
+                VerifiedAmount = 0,  
+                Status = 0,         
+                CreatedBy = dto.CreatedBy > 0 ? dto.CreatedBy : 1,
+                CreatedOn = dto.CreatedOn != default ? dto.CreatedOn : DateTime.UtcNow,
+                RecordStatus = dto.RecordStatus > 0 ? dto.RecordStatus : 1
             };
 
             _context.TaxDeclarations.Add(entity);
             await _context.SaveChangesAsync();
 
+            var saved = await _context.TaxDeclarations
+                .Include(t => t.Employee)
+                .FirstAsync(t => t.DeclarationId == entity.DeclarationId);
+
             return new DeductionsComplianceDto.TaxDeclarationDto
             {
-                DeclarationId = entity.DeclarationId,
-                EmployeeId = entity.EmployeeId,
-                FinancialYear = entity.FinancialYear,
-                DeclaredAmount = entity.DeclaredAmount,
-                VerifiedAmount = entity.VerifiedAmount,
-                Status = entity.Status,
-                SubmittedAt = entity.SubmittedAt,
-                VerifiedBy = entity.VerifiedBy,
-                VerifiedAt = entity.VerifiedAt,
-                RecordStatus = entity.RecordStatus
+                DeclarationId = saved.DeclarationId,
+                EmployeeId = saved.EmployeeId,
+                EmployeeName = saved.Employee.FirstName + " " + saved.Employee.LastName,
+                FinancialYear = saved.FinancialYear,
+                DeclaredAmount = saved.DeclaredAmount,
+                VerifiedAmount = saved.VerifiedAmount,
+                Status = saved.Status,
+                SubmittedAt = saved.SubmittedAt,
+                VerifiedBy = saved.VerifiedBy,
+                VerifiedAt = saved.VerifiedAt,
+                RecordStatus = saved.RecordStatus
             };
         }
 
@@ -104,23 +116,28 @@ namespace AdminService.Core.Interfaces
             entity.VerifiedBy = dto.VerifiedBy;
             entity.VerifiedAt = dto.VerifiedAt;
             entity.RecordStatus = dto.RecordStatus;
-            entity.LastModifiedBy = 1; // TODO: replace with logged-in user
-            entity.LastModifiedOn = DateTime.UtcNow;
+            entity.LastModifiedBy = dto.LastModifiedBy ?? 1;
+            entity.LastModifiedOn = dto.LastModifiedOn ?? DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
+            var updated = await _context.TaxDeclarations
+                .Include(t => t.Employee)
+                .FirstAsync(t => t.DeclarationId == entity.DeclarationId);
+
             return new DeductionsComplianceDto.TaxDeclarationDto
             {
-                DeclarationId = entity.DeclarationId,
-                EmployeeId = entity.EmployeeId,
-                FinancialYear = entity.FinancialYear,
-                DeclaredAmount = entity.DeclaredAmount,
-                VerifiedAmount = entity.VerifiedAmount,
-                Status = entity.Status,
-                SubmittedAt = entity.SubmittedAt,
-                VerifiedBy = entity.VerifiedBy,
-                VerifiedAt = entity.VerifiedAt,
-                RecordStatus = entity.RecordStatus
+                DeclarationId = updated.DeclarationId,
+                EmployeeId = updated.EmployeeId,
+                EmployeeName = updated.Employee.FirstName + " " + updated.Employee.LastName,
+                FinancialYear = updated.FinancialYear,
+                DeclaredAmount = updated.DeclaredAmount,
+                VerifiedAmount = updated.VerifiedAmount,
+                Status = updated.Status,
+                SubmittedAt = updated.SubmittedAt,
+                VerifiedBy = updated.VerifiedBy,
+                VerifiedAt = updated.VerifiedAt,
+                RecordStatus = updated.RecordStatus
             };
         }
 

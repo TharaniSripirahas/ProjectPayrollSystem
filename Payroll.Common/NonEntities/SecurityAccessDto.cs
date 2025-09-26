@@ -38,6 +38,7 @@ namespace Payroll.Common.NonEntities
             public long UserId { get; set; }
             public string Username { get; set; } = string.Empty;
             public long EmployeeId { get; set; }
+            public string? EmployeeName { get; set; }
             public long RoleId { get; set; }
             public string RoleName { get; set; } = string.Empty;
             public int? IsActive { get; set; }
@@ -74,13 +75,20 @@ namespace Payroll.Common.NonEntities
             public string Resource { get; set; } = string.Empty;
             public string Action { get; set; } = string.Empty;
             public int RecordStatus { get; set; }
+            public long CreatedBy { get; set; }
+            public DateTime CreatedOn { get; set; }
+            public long? LastModifiedBy { get; set; }
+            public DateTime? LastModifiedOn { get; set; }
         }
 
         public class CreatePermissionDto
         {
+            public long PermissionId { get; set; }
             public long RoleId { get; set; }
             public string Resource { get; set; } = string.Empty;
             public string Action { get; set; } = string.Empty;
+            public long CreatedBy { get; set; }
+            public DateTime? LastModifiedOn { get; set; }
         }
 
         public class UpdatePermissionDto : CreatePermissionDto

@@ -30,6 +30,7 @@ namespace AdminService.Infrastructure.Services
                     PayslipId = l.PayslipId,
                     AccessedBy = l.AccessedBy,
                     AccessedByName = l.AccessedByNavigation != null ? l.AccessedByNavigation.FirstName + " " + l.AccessedByNavigation.LastName : null,
+                    PayslipFilePath = l.Payslip != null ? l.Payslip.FilePath : null,
                     AccessTime = l.AccessTime,
                     IpAddress = l.IpAddress,
                     RecordStatus = l.RecordStatus
@@ -52,6 +53,7 @@ namespace AdminService.Infrastructure.Services
                 PayslipId = entity.PayslipId,
                 AccessedBy = entity.AccessedBy,
                 AccessedByName = entity.AccessedByNavigation != null ? entity.AccessedByNavigation.FirstName + " " + entity.AccessedByNavigation.LastName : null,
+                PayslipFilePath = entity.Payslip != null ? entity.Payslip.FilePath : null,
                 AccessTime = entity.AccessTime,
                 IpAddress = entity.IpAddress,
                 RecordStatus = entity.RecordStatus
@@ -60,12 +62,10 @@ namespace AdminService.Infrastructure.Services
 
         public async Task<PayslipAccessLogDto> CreateAsync(CreatePayslipAccessLogDto dto)
         {
-            // Validate Payslip
             var payslip = await _context.PayslipStorages.FindAsync(dto.PayslipId);
             if (payslip == null)
                 throw new Exception($"Payslip with ID {dto.PayslipId} not found.");
 
-            // Validate Employee
             var employee = await _context.Employees.FindAsync(dto.AccessedBy);
             if (employee == null)
                 throw new Exception($"Employee with ID {dto.AccessedBy} not found.");
@@ -91,6 +91,7 @@ namespace AdminService.Infrastructure.Services
                 LogId = entity.LogId,
                 PayslipId = entity.PayslipId,
                 AccessedBy = entity.AccessedBy,
+                PayslipFilePath = entity.Payslip != null ? entity.Payslip.FilePath : null,
                 AccessedByName = employee.FirstName + " " + employee.LastName,
                 AccessTime = entity.AccessTime,
                 IpAddress = entity.IpAddress,
@@ -107,7 +108,6 @@ namespace AdminService.Infrastructure.Services
 
             if (entity == null) return null;
 
-            // Update foreign keys if changed
             if (entity.PayslipId != dto.PayslipId)
             {
                 var payslip = await _context.PayslipStorages.FindAsync(dto.PayslipId);
@@ -129,7 +129,7 @@ namespace AdminService.Infrastructure.Services
             entity.AccessTime = dto.AccessTime;
             entity.IpAddress = dto.IpAddress;
             entity.RecordStatus = dto.RecordStatus;
-            entity.LastModifiedBy = 1; // TODO: replace with logged-in user
+            entity.LastModifiedBy = 1; 
             entity.LastModifiedOn = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -140,6 +140,7 @@ namespace AdminService.Infrastructure.Services
                 PayslipId = entity.PayslipId,
                 AccessedBy = entity.AccessedBy,
                 AccessedByName = entity.AccessedByNavigation != null ? entity.AccessedByNavigation.FirstName + " " + entity.AccessedByNavigation.LastName : null,
+                PayslipFilePath = entity.Payslip != null ? entity.Payslip.FilePath : null,
                 AccessTime = entity.AccessTime,
                 IpAddress = entity.IpAddress,
                 RecordStatus = entity.RecordStatus

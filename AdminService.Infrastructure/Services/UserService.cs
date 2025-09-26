@@ -29,6 +29,7 @@ namespace AdminService.Infrastructure.Services
                     UserId = u.UserId,
                     Username = u.Username,
                     EmployeeId = u.EmployeeId,
+                    EmployeeName = u.Employee != null ? $"{u.Employee.FirstName} {u.Employee.LastName}" : null,
                     RoleId = u.RoleId,
                     RoleName = u.Role.RoleName,
                     IsActive = u.IsActive,
@@ -42,6 +43,7 @@ namespace AdminService.Infrastructure.Services
         {
             var user = await _context.Users
                 .Include(u => u.Role)
+                .Include(u => u.Employee)
                 .FirstOrDefaultAsync(u => u.UserId == userId);
 
             if (user == null) return null;
@@ -55,7 +57,8 @@ namespace AdminService.Infrastructure.Services
                 RoleName = user.Role.RoleName,
                 IsActive = user.IsActive,
                 LastLogin = user.LastLogin,
-                RecordStatus = user.RecordStatus
+                RecordStatus = user.RecordStatus,
+                EmployeeName = user.Employee != null ? $"{user.Employee.FirstName} {user.Employee.LastName}" : null
             };
         }
 
@@ -78,20 +81,30 @@ namespace AdminService.Infrastructure.Services
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            var role = await _context.UserRoles.FindAsync(user.RoleId);
+            var createdUser = await _context.Users
+                .Include(u => u.Role)
+                .Include(u => u.Employee)
+                .FirstOrDefaultAsync(u => u.UserId == user.UserId);
+
+            if (createdUser == null)
+                throw new Exception("User not found after creation.");
 
             return new UserDto
             {
-                UserId = user.UserId,
-                Username = user.Username,
-                EmployeeId = user.EmployeeId,
-                RoleId = user.RoleId,
-                RoleName = role?.RoleName ?? string.Empty,
-                IsActive = user.IsActive,
-                LastLogin = user.LastLogin,
-                RecordStatus = user.RecordStatus
+                UserId = createdUser.UserId,
+                Username = createdUser.Username,
+                EmployeeId = createdUser.EmployeeId,
+                EmployeeName = createdUser.Employee != null
+                    ? $"{createdUser.Employee.FirstName} {createdUser.Employee.LastName}"
+                    : null,
+                RoleId = createdUser.RoleId,
+                RoleName = createdUser.Role?.RoleName ?? string.Empty,
+                IsActive = createdUser.IsActive,
+                LastLogin = createdUser.LastLogin,
+                RecordStatus = createdUser.RecordStatus
             };
         }
+
 
         public async Task<UserDto?> UpdateAsync(long userId, UpdateUserDto dto)
         {
@@ -122,7 +135,8 @@ namespace AdminService.Infrastructure.Services
                 RoleName = role?.RoleName ?? string.Empty,
                 IsActive = user.IsActive,
                 LastLogin = user.LastLogin,
-                RecordStatus = user.RecordStatus
+                RecordStatus = user.RecordStatus,
+                EmployeeName = user.Employee != null ? $"{user.Employee.FirstName} {user.Employee.LastName}" : null
             };
         }
 

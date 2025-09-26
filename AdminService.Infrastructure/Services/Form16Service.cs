@@ -27,6 +27,7 @@ namespace AdminService.Infrastructure.Services
                 {
                     FormId = f.FormId,
                     EmployeeId = f.EmployeeId,
+                    EmployeeName = f.Employee.FirstName + " " + f.Employee.LastName,
                     FinancialYear = f.FinancialYear,
                     FilePath = f.FilePath,
                     GeneratedAt = f.GeneratedAt,
@@ -44,6 +45,7 @@ namespace AdminService.Infrastructure.Services
             {
                 FormId = entity.FormId,
                 EmployeeId = entity.EmployeeId,
+                EmployeeName = entity.Employee.FirstName + " " + entity.Employee.LastName,
                 FinancialYear = entity.FinancialYear,
                 FilePath = entity.FilePath,
                 GeneratedAt = entity.GeneratedAt,
@@ -59,7 +61,7 @@ namespace AdminService.Infrastructure.Services
                 FinancialYear = dto.FinancialYear,
                 FilePath = dto.FilePath,
                 GeneratedAt = DateTime.UtcNow,
-                CreatedBy = 1, // TODO: replace with logged-in user id
+                CreatedBy = 1,
                 CreatedOn = DateTime.UtcNow,
                 RecordStatus = 1
             };
@@ -67,27 +69,35 @@ namespace AdminService.Infrastructure.Services
             _context.Form16s.Add(entity);
             await _context.SaveChangesAsync();
 
+            var saved = await _context.Form16s
+                .Include(f => f.Employee)
+                .FirstAsync(f => f.FormId == entity.FormId);
+
             return new DeductionsComplianceDto.Form16Dto
             {
-                FormId = entity.FormId,
-                EmployeeId = entity.EmployeeId,
-                FinancialYear = entity.FinancialYear,
-                FilePath = entity.FilePath,
-                GeneratedAt = entity.GeneratedAt,
-                RecordStatus = entity.RecordStatus
+                FormId = saved.FormId,
+                EmployeeId = saved.EmployeeId,
+                EmployeeName = saved.Employee.FirstName + " " + saved.Employee.LastName, 
+                FinancialYear = saved.FinancialYear,
+                FilePath = saved.FilePath,
+                GeneratedAt = saved.GeneratedAt,
+                RecordStatus = saved.RecordStatus
             };
         }
 
         public async Task<DeductionsComplianceDto.Form16Dto?> UpdateAsync(long formId, DeductionsComplianceDto.UpdateForm16Dto dto)
         {
-            var entity = await _context.Form16s.FindAsync(formId);
+            var entity = await _context.Form16s
+                .Include(f => f.Employee)
+                .FirstOrDefaultAsync(f => f.FormId == formId);
+
             if (entity == null) return null;
 
             entity.EmployeeId = dto.EmployeeId;
             entity.FinancialYear = dto.FinancialYear;
             entity.FilePath = dto.FilePath;
             entity.RecordStatus = dto.RecordStatus;
-            entity.LastModifiedBy = 1; // TODO: replace with logged-in user id
+            entity.LastModifiedBy = 1;
             entity.LastModifiedOn = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -96,6 +106,7 @@ namespace AdminService.Infrastructure.Services
             {
                 FormId = entity.FormId,
                 EmployeeId = entity.EmployeeId,
+                EmployeeName = entity.Employee.FirstName + " " + entity.Employee.LastName, 
                 FinancialYear = entity.FinancialYear,
                 FilePath = entity.FilePath,
                 GeneratedAt = entity.GeneratedAt,

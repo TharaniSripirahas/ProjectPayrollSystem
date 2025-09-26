@@ -11,8 +11,8 @@ namespace AdminService.Core.Interfaces
     {
         Task<IEnumerable<GeneratedReportDto>> GetAllAsync();
         Task<GeneratedReportDto?> GetByIdAsync(long reportId);
-        Task<GeneratedReportDto> CreateAsync(CreateGeneratedReportDto dto);
-        Task<GeneratedReportDto?> UpdateAsync(long reportId, UpdateGeneratedReportDto dto);
+        Task<GeneratedReportDto> CreateAsync(CreateGeneratedReportDto dto, long loggedInUserId);
+        Task<GeneratedReportDto?> UpdateAsync(long reportId, UpdateGeneratedReportDto dto, long loggedInUserId);
         Task<bool> DeleteAsync(long reportId);
     }
 }

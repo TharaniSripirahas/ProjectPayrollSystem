@@ -1,6 +1,7 @@
 ﻿using AdminService.Core.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Payroll.Common.Models;
+using Payroll.Common.NonEntities;
 using static Payroll.Common.NonEntities.NotificationsApprovalDto;
 
 namespace AdminService.API.Controllers
@@ -17,41 +18,144 @@ namespace AdminService.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ApprovalActionDto>>> GetAll()
+        public async Task<ActionResult<ApiResponse<ApprovalActionDto>>> GetAll()
         {
-            var list = await _service.GetAllAsync();
-            return Ok(list);
+            var response = new ApiResponse<ApprovalActionDto>();
+            try
+            {
+                var list = await _service.GetAllAsync();
+                response.ResponseCode = 1;
+                response.Message = "Success";
+                response.ResponseData = list.ToList();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = 0;
+                response.Message = "Failed to fetch approval actions.";
+                response.ErrorDesc = ex.Message;
+                return StatusCode(500, response);
+            }
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ApprovalActionDto>> GetById(long id)
+        [HttpGet("{id:long}")]
+        public async Task<ActionResult<ApiResponse<ApprovalActionDto>>> GetById(long id)
         {
-            var item = await _service.GetByIdAsync(id);
-            if (item == null) return NotFound();
-            return Ok(item);
+            var response = new ApiResponse<ApprovalActionDto>();
+            try
+            {
+                var item = await _service.GetByIdAsync(id);
+                if (item == null)
+                {
+                    response.ResponseCode = 0;
+                    response.Message = "Approval action not found.";
+                    return NotFound(response);
+                }
+
+                response.ResponseCode = 1;
+                response.Message = "Success";
+                response.ResponseData.Add(item);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = 0;
+                response.Message = "Error retrieving approval action.";
+                response.ErrorDesc = ex.Message;
+                return StatusCode(500, response);
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApprovalActionDto>> Create(CreateApprovalActionDto dto)
+        public async Task<ActionResult<ApiResponse<ApprovalActionDto>>> Create([FromBody] CreateApprovalActionDto dto)
         {
-            var created = await _service.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.ActionId }, created);
+            var response = new ApiResponse<ApprovalActionDto>();
+            if (!ModelState.IsValid)
+            {
+                response.ResponseCode = 0;
+                response.Message = "Validation failed.";
+                response.ErrorDesc = string.Join("; ",
+                    ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return BadRequest(response);
+            }
+
+            try
+            {
+                var created = await _service.CreateAsync(dto);
+                response.ResponseCode = 1;
+                response.Message = "Approval action created successfully.";
+                response.ResponseData.Add(created);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = 0;
+                response.Message = "Error creating approval action.";
+                response.ErrorDesc = ex.Message;
+                return StatusCode(500, response);
+            }
         }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult<ApprovalActionDto>> Update(long id, UpdateApprovalActionDto dto)
+        [HttpPut("{id:long}")]
+        public async Task<ActionResult<ApiResponse<ApprovalActionDto>>> Update(long id, [FromBody] UpdateApprovalActionDto dto)
         {
-            var updated = await _service.UpdateAsync(id, dto);
-            if (updated == null) return NotFound();
-            return Ok(updated);
+            var response = new ApiResponse<ApprovalActionDto>();
+            if (!ModelState.IsValid)
+            {
+                response.ResponseCode = 0;
+                response.Message = "Validation failed.";
+                return BadRequest(response);
+            }
+
+            try
+            {
+                var updated = await _service.UpdateAsync(id, dto);
+                if (updated == null)
+                {
+                    response.ResponseCode = 0;
+                    response.Message = "Approval action not found.";
+                    return NotFound(response);
+                }
+
+                response.ResponseCode = 1;
+                response.Message = "Approval action updated successfully.";
+                response.ResponseData.Add(updated);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = 0;
+                response.Message = "Error updating approval action.";
+                response.ErrorDesc = ex.Message;
+                return StatusCode(500, response);
+            }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(long id)
+        [HttpDelete("{id:long}")]
+        public async Task<ActionResult<ApiResponse<ApprovalActionDto>>> Delete(long id)
         {
-            var deleted = await _service.DeleteAsync(id);
-            if (!deleted) return NotFound();
-            return NoContent();
+            var response = new ApiResponse<ApprovalActionDto>();
+            try
+            {
+                var deleted = await _service.DeleteAsync(id);
+                if (!deleted)
+                {
+                    response.ResponseCode = 0;
+                    response.Message = "Approval action not found.";
+                    return NotFound(response);
+                }
+
+                response.ResponseCode = 1;
+                response.Message = "Approval action deleted successfully.";
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = 0;
+                response.Message = "Error deleting approval action.";
+                response.ErrorDesc = ex.Message;
+                return StatusCode(500, response);
+            }
         }
     }
 }

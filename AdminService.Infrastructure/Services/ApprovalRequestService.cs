@@ -34,6 +34,9 @@ namespace AdminService.Infrastructure.Services
                     CurrentLevelName = r.CurrentLevel != null ? $"Level {r.CurrentLevel.LevelNumber}" : null,
                     EntityTable = r.EntityTable,
                     RequesterId = r.RequesterId,
+                    RequesterName = r.Requester != null
+                    ? $"{r.Requester.FirstName} {r.Requester.LastName}"
+                    : null,
                     CreatedAt = r.CreatedAt,
                     UpdatedAt = r.UpdatedAt,
                     CreatedBy = r.CreatedBy,
@@ -50,6 +53,7 @@ namespace AdminService.Infrastructure.Services
             var entity = await _context.ApprovalRequests
                 .Include(r => r.Workflow)
                 .Include(r => r.CurrentLevel)
+                .Include(r => r.Requester)
                 .FirstOrDefaultAsync(r => r.RequestId == requestId);
 
             if (entity == null) return null;
@@ -63,6 +67,9 @@ namespace AdminService.Infrastructure.Services
                 CurrentLevelName = entity.CurrentLevel != null ? $"Level {entity.CurrentLevel.LevelNumber}" : null,
                 EntityTable = entity.EntityTable,
                 RequesterId = entity.RequesterId,
+                RequesterName = entity.Requester != null
+                ? $"{entity.Requester.FirstName} {entity.Requester.LastName}"
+                : null,
                 CreatedAt = entity.CreatedAt,
                 UpdatedAt = entity.UpdatedAt,
                 CreatedBy = entity.CreatedBy,
@@ -92,9 +99,38 @@ namespace AdminService.Infrastructure.Services
             _context.ApprovalRequests.Add(entity);
             await _context.SaveChangesAsync();
 
-            return await GetByIdAsync(entity.RequestId);
-        }
+            var createdRequest = await _context.ApprovalRequests
+                .Include(r => r.Workflow)
+                .Include(r => r.CurrentLevel)
+                .Include(r => r.Requester)
+                .FirstOrDefaultAsync(r => r.RequestId == entity.RequestId);
 
+            if (createdRequest == null)
+                throw new Exception("ApprovalRequest not found after creation.");
+
+            return new ApprovalRequestDto
+            {
+                RequestId = createdRequest.RequestId,
+                WorkflowId = createdRequest.WorkflowId,
+                WorkflowName = createdRequest.Workflow?.WorkflowName,
+                CurrentLevelId = createdRequest.CurrentLevelId,
+                CurrentLevelName = createdRequest.CurrentLevel != null
+                    ? $"Level {createdRequest.CurrentLevel.LevelNumber}"
+                    : null,  
+                EntityTable = createdRequest.EntityTable,
+                RequesterId = createdRequest.RequesterId,
+                RequesterName = createdRequest.Requester != null
+                    ? $"{createdRequest.Requester.FirstName} {createdRequest.Requester.LastName}"
+                   : null,
+                CreatedAt = createdRequest.CreatedAt,
+                UpdatedAt = createdRequest.UpdatedAt,
+                CreatedBy = createdRequest.CreatedBy,
+                CreatedOn = createdRequest.CreatedOn,
+                LastModifiedBy = createdRequest.LastModifiedBy,
+                LastModifiedOn = createdRequest.LastModifiedOn,
+                RecordStatus = createdRequest.RecordStatus
+            };
+        }
         public async Task<ApprovalRequestDto?> UpdateAsync(long requestId, UpdateApprovalRequestDto dto)
         {
             var entity = await _context.ApprovalRequests.FindAsync(requestId);

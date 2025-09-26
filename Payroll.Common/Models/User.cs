@@ -32,4 +32,6 @@ public partial class User
     public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 
     public virtual UserRole Role { get; set; } = null!;
+    public virtual Employee Employee { get; set; } = null!;
+
 }

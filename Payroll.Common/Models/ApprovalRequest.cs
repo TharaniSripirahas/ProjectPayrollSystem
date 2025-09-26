@@ -34,4 +34,6 @@ public partial class ApprovalRequest
     public virtual ApprovalLevel CurrentLevel { get; set; } = null!;
 
     public virtual ApprovalWorkflow Workflow { get; set; } = null!;
+    public virtual Employee? Requester { get; set; }
+
 }

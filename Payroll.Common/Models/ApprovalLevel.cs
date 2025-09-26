@@ -6,11 +6,12 @@ namespace Payroll.Common.Models;
 public partial class ApprovalLevel
 {
     public long LevelId { get; set; }
-
+    public string? LevelName { get; set; }
     public long WorkflowId { get; set; }
 
     public int LevelNumber { get; set; }
 
+    public long? ApproverId { get; set; }
     public long ApproverRoleId { get; set; }
 
     public int? IsFinalApproval { get; set; }
@@ -30,4 +31,7 @@ public partial class ApprovalLevel
     public virtual ICollection<ApprovalRequest> ApprovalRequests { get; set; } = new List<ApprovalRequest>();
 
     public virtual ApprovalWorkflow Workflow { get; set; } = null!;
+    public virtual UserRole ApproverRole { get; set; } = null!;
+    public virtual Employee? Approver { get; set; }
+
 }

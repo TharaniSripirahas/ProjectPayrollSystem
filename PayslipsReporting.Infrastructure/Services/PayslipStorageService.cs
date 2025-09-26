@@ -23,11 +23,20 @@ namespace PayslipsReporting.Infrastructure.Services
         public async Task<IEnumerable<PayslipsReportingDto.PayslipDto>> GetAllAsync()
         {
             return await _context.PayslipStorages
+                .Include(p => p.Employee)
+                .Include(p => p.Payroll)
+                    .ThenInclude(pr => pr.PayrollCycle)
                 .Select(p => new PayslipsReportingDto.PayslipDto
                 {
                     PayslipId = p.PayslipId,
                     PayrollId = p.PayrollId,
+                    PayrollName = p.Payroll != null && p.Payroll.PayrollCycle != null
+                    ? p.Payroll.PayrollCycle.PayrollCycleName
+                    : null,
                     EmployeeId = p.EmployeeId,
+                    EmployeeName = p.Employee != null
+                    ? p.Employee.FirstName + " " + p.Employee.LastName
+                    : null,
                     FilePath = p.FilePath,
                     FileHash = p.FileHash,
                     GeneratedAt = p.GeneratedAt,
@@ -39,6 +48,7 @@ namespace PayslipsReporting.Infrastructure.Services
                 })
                 .ToListAsync();
         }
+
 
         public async Task<PayslipsReportingDto.PayslipDto?> GetByIdAsync(long payslipId)
         {
@@ -56,8 +66,8 @@ namespace PayslipsReporting.Infrastructure.Services
                 PayrollName = payslip.Payroll != null ? payslip.Payroll.PayrollCycle.PayrollCycleName : null,
                 EmployeeId = payslip.EmployeeId,
                 EmployeeName = payslip.Employee != null
-                    ? payslip.Employee.FirstName + " " + payslip.Employee.LastName
-                    : null,
+                ? payslip.Employee.FirstName + " " + payslip.Employee.LastName
+                : null,
                 FilePath = payslip.FilePath,
                 FileHash = payslip.FileHash,
                 GeneratedAt = payslip.GeneratedAt,
@@ -69,43 +79,6 @@ namespace PayslipsReporting.Infrastructure.Services
             };
         }
 
-        //public async Task<PayslipsReportingDto.PayslipDto> CreateAsync(PayslipsReportingDto.CreatePayslipDto dto)
-        //{
-        //    var entity = new PayslipStorage
-        //    {
-        //        PayrollId = dto.PayrollId,
-        //        EmployeeId = dto.EmployeeId,
-        //        FilePath = dto.FilePath,
-        //        FileHash = dto.FileHash,
-        //        GeneratedAt = DateTime.UtcNow,
-        //        IsDelivered = dto.IsDelivered,
-        //        DeliveryMethod = dto.DeliveryMethod,
-        //        DeliveryDate = dto.DeliveryDate,
-        //        TdsSheetPath = dto.TdsSheetPath,
-        //        CreatedBy = 1, // TODO: replace with logged-in user
-        //        CreatedOn = DateTime.UtcNow,
-        //        RecordStatus = 1
-        //    };
-
-        //    _context.PayslipStorages.Add(entity);
-        //    await _context.SaveChangesAsync();
-
-        //    return new PayslipsReportingDto.PayslipDto
-        //    {
-        //        PayslipId = entity.PayslipId,
-        //        PayrollId = entity.PayrollId,
-        //        EmployeeId = entity.EmployeeId,
-        //        FilePath = entity.FilePath,
-        //        FileHash = entity.FileHash,
-        //        GeneratedAt = entity.GeneratedAt,
-        //        IsDelivered = entity.IsDelivered,
-        //        DeliveryMethod = entity.DeliveryMethod,
-        //        DeliveryDate = entity.DeliveryDate,
-        //        TdsSheetPath = entity.TdsSheetPath,
-        //        RecordStatus = entity.RecordStatus
-        //    };
-        //}
-
 
         public async Task<PayslipsReportingDto.PayslipDto> CreateAsync(PayslipsReportingDto.CreatePayslipDto dto)
         {
@@ -113,11 +86,13 @@ namespace PayslipsReporting.Infrastructure.Services
             if (employee == null)
                 throw new Exception($"Employee with ID {dto.EmployeeId} not found.");
 
-            var payroll = await _context.PayrollRecords.FindAsync(dto.PayrollId);
+            var payroll = await _context.PayrollRecords
+                .Include(pr => pr.PayrollCycle)
+                .FirstOrDefaultAsync(pr => pr.RecordId == dto.PayrollId); 
+
             if (payroll == null)
                 throw new Exception($"Payroll record with ID {dto.PayrollId} not found.");
 
-          
             var entity = new PayslipStorage
             {
                 PayrollId = dto.PayrollId,
@@ -129,7 +104,7 @@ namespace PayslipsReporting.Infrastructure.Services
                 DeliveryMethod = dto.DeliveryMethod,
                 DeliveryDate = dto.DeliveryDate,
                 TdsSheetPath = dto.TdsSheetPath,
-                CreatedBy = 1, 
+                CreatedBy = 1,
                 CreatedOn = DateTime.UtcNow,
                 RecordStatus = 1,
                 Employee = employee,
@@ -139,12 +114,11 @@ namespace PayslipsReporting.Infrastructure.Services
             _context.PayslipStorages.Add(entity);
             await _context.SaveChangesAsync();
 
-       
             return new PayslipsReportingDto.PayslipDto
             {
                 PayslipId = entity.PayslipId,
                 PayrollId = entity.PayrollId,
-                //PayrollName = $"Payroll #{payroll.PayrollId}", 
+                PayrollName = payroll.PayrollCycle?.PayrollCycleName, 
                 EmployeeId = entity.EmployeeId,
                 EmployeeName = employee.FirstName + " " + employee.LastName,
                 FilePath = entity.FilePath,
@@ -157,6 +131,7 @@ namespace PayslipsReporting.Infrastructure.Services
                 RecordStatus = entity.RecordStatus
             };
         }
+
 
         public async Task<PayslipsReportingDto.PayslipDto?> UpdateAsync(long payslipId, PayslipsReportingDto.UpdatePayslipDto dto)
         {

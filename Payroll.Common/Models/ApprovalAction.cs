@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 
 namespace Payroll.Common.Models;
@@ -30,6 +31,7 @@ public partial class ApprovalAction
     public int RecordStatus { get; set; }
 
     public virtual ApprovalLevel Level { get; set; } = null!;
-
     public virtual ApprovalRequest Request { get; set; } = null!;
+    public virtual Employee? Approver { get; set; }
+
 }

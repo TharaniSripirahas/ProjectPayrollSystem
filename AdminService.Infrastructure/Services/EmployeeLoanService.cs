@@ -37,16 +37,16 @@ namespace AdminService.Infrastructure.Services
                     {
                         LoanId = l.LoanId,
                         EmployeeId = l.EmployeeId,
+                        EmployeeName = l.Employee != null ? l.Employee.FirstName + " " + l.Employee.LastName : null,
                         LoanTypeId = l.LoanTypeId,
+                        LoanTypeName = l.LoanType != null ? l.LoanType.TypeName : null,
                         Amount = l.Amount,
                         SanctionDate = l.SanctionDate,
                         TenureMonths = l.TenureMonths,
                         InterestRate = l.InterestRate,
                         EmiAmount = l.EmiAmount,
                         Status = l.Status,
-                        Purpose = l.Purpose,
-                        EmployeeName = l.Employee != null ? l.Employee.FirstName + " " + l.Employee.LastName : null,
-                        LoanTypeName = l.LoanType != null ? l.LoanType.TypeName : null
+                        Purpose = l.Purpose
                     })
                     .ToListAsync();
 
@@ -133,7 +133,6 @@ namespace AdminService.Infrastructure.Services
                 _context.EmployeeLoans.Add(loan);
                 await _context.SaveChangesAsync();
 
-                // Load related entities for mapping
                 await _context.Entry(loan).Reference(l => l.Employee).LoadAsync();
                 await _context.Entry(loan).Reference(l => l.LoanType).LoadAsync();
 
@@ -178,8 +177,8 @@ namespace AdminService.Infrastructure.Services
                     return response;
                 }
 
-                loan.EmployeeId = dto.EmployeeId; // optionally allow updating employee
-                loan.LoanTypeId = dto.LoanTypeId; // optionally allow updating loan type
+                loan.EmployeeId = dto.EmployeeId; 
+                loan.LoanTypeId = dto.LoanTypeId; 
                 loan.Amount = dto.Amount;
                 loan.TenureMonths = dto.TenureMonths;
                 loan.InterestRate = dto.InterestRate;
@@ -192,7 +191,6 @@ namespace AdminService.Infrastructure.Services
                 _context.EmployeeLoans.Update(loan);
                 await _context.SaveChangesAsync();
 
-                // Load related entities for mapping
                 await _context.Entry(loan).Reference(l => l.Employee).LoadAsync();
                 await _context.Entry(loan).Reference(l => l.LoanType).LoadAsync();
 

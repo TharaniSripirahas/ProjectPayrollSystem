@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Payroll.Common.NonEntities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static Payroll.Common.NonEntities.PayslipsReportingDto;
@@ -20,17 +19,16 @@ namespace AdminService.API.Controllers
             _service = service;
         }
 
-       
         [HttpGet]
         public async Task<ActionResult<ApiResponse<GeneratedReportDto>>> GetAll()
         {
             var response = new ApiResponse<GeneratedReportDto>();
             try
             {
-                var list = await _service.GetAllAsync();
+                var reports = await _service.GetAllAsync();
                 response.ResponseCode = 1;
                 response.Message = "Success";
-                response.ResponseData = list.ToList();
+                response.ResponseData = reports.ToList();
                 return Ok(response);
             }
             catch (Exception ex)
@@ -42,7 +40,6 @@ namespace AdminService.API.Controllers
             }
         }
 
-      
         [HttpGet("{id:long}")]
         public async Task<ActionResult<ApiResponse<GeneratedReportDto>>> GetById(long id)
         {
@@ -71,22 +68,26 @@ namespace AdminService.API.Controllers
             }
         }
 
-      
         [HttpPost]
         public async Task<ActionResult<ApiResponse<GeneratedReportDto>>> Create([FromBody] CreateGeneratedReportDto dto)
         {
             var response = new ApiResponse<GeneratedReportDto>();
+
             if (!ModelState.IsValid)
             {
                 response.ResponseCode = 0;
                 response.Message = "Validation failed.";
-                response.ErrorDesc = string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                response.ErrorDesc = string.Join("; ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
                 return BadRequest(response);
             }
 
             try
             {
-                var created = await _service.CreateAsync(dto);
+                long loggedInUserId = 1; 
+                var created = await _service.CreateAsync(dto, loggedInUserId);
+
                 response.ResponseCode = 1;
                 response.Message = "Report created successfully.";
                 response.ResponseData.Add(created);
@@ -101,21 +102,26 @@ namespace AdminService.API.Controllers
             }
         }
 
-      
         [HttpPut("{id:long}")]
         public async Task<ActionResult<ApiResponse<GeneratedReportDto>>> Update(long id, [FromBody] UpdateGeneratedReportDto dto)
         {
             var response = new ApiResponse<GeneratedReportDto>();
+
             if (!ModelState.IsValid)
             {
                 response.ResponseCode = 0;
                 response.Message = "Validation failed.";
+                response.ErrorDesc = string.Join("; ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
                 return BadRequest(response);
             }
 
             try
             {
-                var updated = await _service.UpdateAsync(id, dto);
+                long loggedInUserId = 1; 
+                var updated = await _service.UpdateAsync(id, dto, loggedInUserId);
+
                 if (updated == null)
                 {
                     response.ResponseCode = 0;
@@ -137,7 +143,7 @@ namespace AdminService.API.Controllers
             }
         }
 
-    
+
         [HttpDelete("{id:long}")]
         public async Task<ActionResult<ApiResponse<GeneratedReportDto>>> Delete(long id)
         {

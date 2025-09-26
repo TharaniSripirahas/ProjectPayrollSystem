@@ -7,9 +7,9 @@ public partial class PayslipAccessLog
 {
     public long LogId { get; set; }
 
-    public long PayslipId { get; set; }
+    public long PayslipId { get; set; }  // FK
 
-    public long AccessedBy { get; set; }
+    public long AccessedBy { get; set; }  // FK
 
     public DateTime? AccessTime { get; set; }
 
